@@ -34,6 +34,20 @@ class Actor:
         return False
 
 
+    def hitbox_collision_point(self, obstacle) -> Vector3:
+        to_obstacle_sdf = obstacle.hitbox_sdf(self.position)
+        to_obstacle_vec = (self.position - obstacle.position)
+        distance = (
+            to_obstacle_sdf
+            + obstacle.hitbox_sdf(self.position) 
+            - to_obstacle_vec.length()
+        )
+        if distance < 0:
+            to_obstacle_vec.normalize_ip()
+            return to_obstacle_vec * to_obstacle_sdf
+        return None
+
+
     def update(self, obstacles: list) -> None:
         pass
 

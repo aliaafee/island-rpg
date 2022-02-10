@@ -48,7 +48,7 @@ class Player(Actor):
             self.direction.z = 0
 
         if self.direction.length() > 0:
-            self.direction.normalize()
+            self.direction.normalize_ip()
 
         self.direction = self.direction.rotate_z(-45)
 
