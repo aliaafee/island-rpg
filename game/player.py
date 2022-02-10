@@ -1,20 +1,35 @@
 import pygame
 from .math import Vector2, Vector3, TransformMatrix
-from .actor import Actor
-from .resources import load_image
+from .animated_actor import AnimatedActor
+from .resources import load_image, load_image_folder
 
-class Player(Actor):
+class Player(AnimatedActor):
     def __init__(self, groups=...) -> None:
         super().__init__(groups)
+        
         self.direction = Vector3()
         self.speed = 3
-        self.image = load_image("test", "player.png")
-        self.image_rect = self.image.get_rect()
+        
+        self.current_direction = "down"
+        self.current_action = "idle"
+
+        animation_names = [
+            'up_walking', 'down_walking', 'left_walking', 'right_walking',
+            'up_idle', 'down_idle', 'left_idle', 'right_idle',
+            'up_attack', 'down_attack', 'left_attack', 'right_attack'
+        ]
+        for animation_name in animation_names:
+            self.add_animation(animation_name, load_image_folder('player', animation_name))
+        self.set_current_animation("down_idle")
         
 
     def update(self, obstacles: list) -> None:
         super().update(obstacles)
+
         self.input(obstacles)
+        
+        self.set_current_animation("{}_{}".format(self.current_direction, self.current_action))
+        self.animate()
         
 
     def input(self, obstacles: list) -> None:
@@ -40,15 +55,16 @@ class Player(Actor):
 
         if keys[pygame.K_z]:
             self.direction.z = -1
-            self.current_direction = "down"
         elif keys[pygame.K_a]:
             self.direction.z = 1
-            self.current_direction = "up"
         else:
             self.direction.z = 0
 
         if self.direction.length() > 0:
             self.direction.normalize_ip()
+            self.current_action = "walking"
+        else:
+            self.current_action = "idle"
 
         self.direction = self.direction.rotate_z(-45)
 
@@ -66,11 +82,9 @@ class Player(Actor):
 
     def transform(self, transformation: TransformMatrix, translation: Vector3) -> None:
         super().transform(transformation, translation)
-        self.image_rect.center = self.screen_position.xy
-        self.image_rect.bottom = self.screen_position.y
 
 
     def draw(self, screen: pygame.surface.Surface):
         super().draw_shadow(screen)
-        screen.blit(self.image, self.image_rect)
+        self.draw_animation(screen)
         
