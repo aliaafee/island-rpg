@@ -8,7 +8,8 @@ class Actor:
         self.position = Vector3(0, 0, 0)
         self.screen_position = Vector3(0, 0, 0)
         self.screen_base_position = Vector3(0, 0, 0)
-        #self.screen_rect = pygame.Rect(0, 0, 64, 64)
+        self.hit_radius = 30
+    
         self.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
         self.base_line = Vector2(1, -1)
@@ -17,13 +18,30 @@ class Actor:
         for group in groups:
             group.append(self)
 
-    def update(self) -> None:
+
+    def hitbox_sdf(self, point: Vector3) -> float:
+        return self.position.distance_to(point) - self.hit_radius
+
+
+    def hitbox_collision(self, obstacle) -> bool:
+        distance = (
+            self.hitbox_sdf(obstacle.position) 
+            + obstacle.hitbox_sdf(self.position) 
+            - self.position.distance_to(obstacle.position)
+        )
+        if distance < 0:
+            return True
+        return False
+
+
+    def update(self, obstacles: list) -> None:
         pass
+
 
     def transform(self, transformation: TransformMatrix, translation: Vector3) -> None:
         self.screen_position = (transformation * self.position) + translation
         self.screen_base_position = (transformation * Vector3(self.position.x, self.position.y, 0)) + translation
-        #self.screen_rect.center = self.screen_position.xy
+
 
     def draw_shadow(self, screen: pygame.surface.Surface):
         shadow_rect = pygame.rect.Rect(0,0,60, 30)
@@ -33,6 +51,7 @@ class Actor:
             'grey',
             shadow_rect
         )
+
 
     def draw(self, screen: pygame.surface.Surface):
         self.draw_shadow(screen)
@@ -46,7 +65,3 @@ class Actor:
             self.color, 
             (self.screen_position.x, self.screen_position.y-60), 30
         )
-
-
-
-    

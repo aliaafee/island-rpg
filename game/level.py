@@ -9,6 +9,7 @@ class Level:
     def __init__(self) -> None:
         self.display_surface = pygame.display.get_surface()
         self.visible_actors = []
+        self.obstacles = []
 
         self.load_level()
         
@@ -32,14 +33,14 @@ class Level:
         self.player = Player([self.visible_actors])
         self.player.position = Vector3(100, 100, 0)
 
-        self.obstacle = Actor([self.visible_actors])
+        self.obstacle = Actor([self.visible_actors, self.obstacles])
         self.obstacle.position = Vector3(0, 0, 0)
         
         
 
     def update(self) -> None:
         for actor in self.visible_actors:
-            actor.update()
+            actor.update(self.obstacles)
 
     def transform(self) -> None:
         for actor in self.visible_actors:

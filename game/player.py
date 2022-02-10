@@ -8,21 +8,16 @@ class Player(Actor):
         super().__init__(groups)
         self.direction = Vector3()
         self.speed = 3
-        #self.points = [
-        #    Vector3(50, 50, 0),
-        #    Vector3(50, -50, 0),
-        #    Vector3(-50, -50, 0),
-        #    Vector3(-50, 50, 0)
-        #]
         self.image = load_image("test", "player.png")
         self.image_rect = self.image.get_rect()
         
 
-    def update(self) -> None:
-        self.input()
-        return super().update()
+    def update(self, obstacles: list) -> None:
+        super().update(obstacles)
+        self.input(obstacles)
+        
 
-    def input(self) -> None:
+    def input(self, obstacles: list) -> None:
         keys = pygame.key.get_pressed()
         
         if keys[pygame.K_UP]:
@@ -56,27 +51,26 @@ class Player(Actor):
             self.direction.normalize()
 
         self.direction = self.direction.rotate_z(-45)
+
+        initial_position = self.position
         
-        self.position.x += self.direction.x * self.speed
-        self.position.y += self.direction.y * self.speed
-        self.position.z += self.direction.z * self.speed
+        self.position = self.position +  (self.direction * self.speed)
 
         if self.position.z < 0:
             self.position.z = 0
 
+        for obstacle in obstacles:
+            if self.hitbox_collision(obstacle):
+                self.position = initial_position
+        
+
     def transform(self, transformation: TransformMatrix, translation: Vector3) -> None:
-        #self.transformed_points = []
-        #for point in self.points:
-        #    self.transformed_points.append(
-        #        ((transformation * (point + (self.position.x, self.position.y, 0))) + translation).xy
-        #    )
         super().transform(transformation, translation)
         self.image_rect.center = self.screen_position.xy
         self.image_rect.bottom = self.screen_position.y
 
 
     def draw(self, screen: pygame.surface.Surface):
-        #pygame.draw.polygon(screen, (0, 255, 0), self.transformed_points, 1)
         super().draw_shadow(screen)
         screen.blit(self.image, self.image_rect)
         
