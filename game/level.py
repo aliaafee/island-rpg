@@ -2,6 +2,7 @@ import pygame
 import math
 from .actor import Actor
 from .player import Player
+from .vegetation import Tree
 from .math import TransformMatrix, Vector3
 
 
@@ -17,7 +18,7 @@ class Level:
 
     def load_level(self) -> None:
         alpha = (45/180) * math.pi
-        beta = (60/180) * math.pi
+        beta = (45/180) * math.pi
         self.transformation = TransformMatrix([
             [                 math.sin(alpha),             -1 * math.sin(alpha),                   0],
             [math.cos(beta) * math.sin(alpha), math.cos(beta) * math.cos(alpha), -1 * math.sin(beta)],
@@ -33,8 +34,11 @@ class Level:
         self.player = Player([self.visible_actors])
         self.player.position = Vector3(100, 100, 0)
 
-        self.obstacle = Actor([self.visible_actors, self.obstacles])
+        self.obstacle = Tree([self.visible_actors, self.obstacles])
         self.obstacle.position = Vector3(0, 0, 0)
+
+        self.tree = Tree([self.visible_actors, self.obstacles])
+        self.tree.position = Vector3(150, 0, 0)
         
         
 

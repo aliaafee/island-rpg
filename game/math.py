@@ -24,3 +24,33 @@ class TransformMatrix:
             self.matrix[1][0] * vec3.x + self.matrix[1][1] * vec3.y + self.matrix[1][2] * vec3.z,
             self.matrix[2][0] * vec3.x + self.matrix[2][1] * vec3.y + self.matrix[2][2] * vec3.z
         )
+
+
+def vector2_abs(a: Vector2) -> Vector2:
+    return Vector2(
+        abs(a.x),
+        abs(a.y)
+    )
+
+
+def vector3_abs(a: Vector3) -> Vector3:
+    return Vector3(
+        abs(a.x),
+        abs(a.y),
+        abs(a.z)
+    )
+
+
+def vector2_max(a: Vector2, b: Vector2) -> Vector2:
+    return Vector2(
+        max(a.x, b.x),
+        max(a.y, b.y)
+    )
+
+
+def vector3_max(a: Vector3, b: Vector3) -> Vector3:
+    return Vector3(
+        max(a.x, b.x),
+        max(a.y, b.y),
+        max(a.z, b.z),
+    )

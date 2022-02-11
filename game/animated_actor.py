@@ -1,5 +1,5 @@
 import pygame
-from .math import TransformMatrix, Vector3
+from .math import TransformMatrix, Vector3, Vector2
 from .actor import Actor
 
 
@@ -12,6 +12,7 @@ class AnimatedActor(Actor):
         self.animation_speed = 0.15
         self.image = None
         self.image_rect = pygame.rect.Rect(0, 0, 64, 64)
+        self.image_offset = Vector2(0, 0)
 
 
     def add_animation(self, name: str, frames: list) -> None:
@@ -42,6 +43,7 @@ class AnimatedActor(Actor):
         super().transform(transformation, translation)
         self.image_rect.center = self.screen_position.xy
         self.image_rect.bottom = self.screen_position.y
+        self.image_rect.center = self.image_offset + self.image_rect.center
 
 
     def draw_animation(self, screen: pygame.surface.Surface) -> None:

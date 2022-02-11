@@ -6,6 +6,9 @@ from .resources import load_image, load_image_folder
 class Player(AnimatedActor):
     def __init__(self, groups=...) -> None:
         super().__init__(groups)
+
+        self.hitbox = Vector3(30, 30, 30)
+        self.hitbox_offset = Vector3(0, 0, 30)
         
         self.direction = Vector3()
         self.speed = 3
@@ -21,6 +24,10 @@ class Player(AnimatedActor):
         for animation_name in animation_names:
             self.add_animation(animation_name, load_image_folder('player', animation_name))
         self.set_current_animation("down_idle")
+
+
+    def hitbox_sd(self, point: Vector3) -> float:
+        return self.sd_sphere(point, 30)
         
 
     def update(self, obstacles: list) -> None:
@@ -30,6 +37,7 @@ class Player(AnimatedActor):
         
         self.set_current_animation("{}_{}".format(self.current_direction, self.current_action))
         self.animate()
+
         
 
     def input(self, obstacles: list) -> None:
@@ -78,13 +86,14 @@ class Player(AnimatedActor):
         for obstacle in obstacles:
             if self.hitbox_collision(obstacle):
                 self.position = initial_position
-        
+
 
     def transform(self, transformation: TransformMatrix, translation: Vector3) -> None:
         super().transform(transformation, translation)
 
 
     def draw(self, screen: pygame.surface.Surface):
+        super().draw(screen)
         super().draw_shadow(screen)
         self.draw_animation(screen)
         

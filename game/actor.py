@@ -1,14 +1,17 @@
 import pygame
 import random
 import math
-from .math import Vector3, TransformMatrix, Vector2
+from .math import Vector3, TransformMatrix, Vector2, vector3_max, vector3_abs
 
 class Actor:
     def __init__(self, groups = []) -> None:
         self.position = Vector3(0, 0, 0)
         self.screen_position = Vector3(0, 0, 0)
         self.screen_base_position = Vector3(0, 0, 0)
-        self.hit_radius = 30
+
+        self.set_hitbox(Vector3(50, 50 , 50))
+        self.show_hotbox = False
+        self.screen_hitbox_points = []
     
         self.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
@@ -19,33 +22,37 @@ class Actor:
             group.append(self)
 
 
-    def hitbox_sdf(self, point: Vector3) -> float:
-        return self.position.distance_to(point) - self.hit_radius
+    def set_hitbox(self, hitbox: Vector3) -> None:
+        self.hitbox = hitbox
+        self.hitbox_offset = Vector3(0, 0, self.hitbox.z)
+
+
+    def hitbox_sd(self, point: Vector3) -> float:
+        return self.sd_box(point, self.hitbox)
+
+
+    def sd_box(self, point: Vector3, box: Vector3) -> float:
+        q = vector3_abs(point - self.hitbox_position()) - box
+        return vector3_max(q, Vector3(0, 0, 0)).length() + min(max(q.x, max(q.y, q.z)), 0)
+
+
+    def sd_sphere(self, point: Vector3, radius: float) -> float:
+        q = point - self.hitbox_position()
+        return q.length() - radius
+
+    def hitbox_position(self):
+        return self.position + self.hitbox_offset
 
 
     def hitbox_collision(self, obstacle) -> bool:
         distance = (
-            self.hitbox_sdf(obstacle.position) 
-            + obstacle.hitbox_sdf(self.position) 
-            - self.position.distance_to(obstacle.position)
+            self.hitbox_sd(obstacle.hitbox_position()) 
+            + obstacle.hitbox_sd(self.hitbox_position()) 
+            - self.hitbox_position().distance_to(obstacle.hitbox_position())
         )
         if distance < 0:
             return True
         return False
-
-
-    def hitbox_collision_point(self, obstacle) -> Vector3:
-        to_obstacle_sdf = obstacle.hitbox_sdf(self.position)
-        to_obstacle_vec = (self.position - obstacle.position)
-        distance = (
-            to_obstacle_sdf
-            + obstacle.hitbox_sdf(self.position) 
-            - to_obstacle_vec.length()
-        )
-        if distance < 0:
-            to_obstacle_vec.normalize_ip()
-            return to_obstacle_vec * to_obstacle_sdf
-        return None
 
 
     def update(self, obstacles: list) -> None:
@@ -55,6 +62,8 @@ class Actor:
     def transform(self, transformation: TransformMatrix, translation: Vector3) -> None:
         self.screen_position = (transformation * self.position) + translation
         self.screen_base_position = (transformation * Vector3(self.position.x, self.position.y, 0)) + translation
+        if self.show_hotbox:
+            self.transform_hitbox(transformation, translation)
 
 
     def draw_shadow(self, screen: pygame.surface.Surface):
@@ -67,15 +76,26 @@ class Actor:
         )
 
 
+    def transform_hitbox(self, transformation: TransformMatrix, translation: Vector3) -> None:
+        hbox = self.hitbox + self.hitbox_offset
+        hitbox_points = [
+            (hbox.x, hbox.y, hbox.z),
+            (hbox.x, hbox.y * -1, hbox.z),
+            (hbox.x * -1, hbox.y * -1, hbox.z),
+            (hbox.x * -1, hbox.y, hbox.z),
+            (hbox.x, hbox.y, hbox.z),
+            (hbox.x, hbox.y, 0),
+            (hbox.x, hbox.y * -1, 0),
+            (hbox.x * -1, hbox.y * -1, 0),
+            (hbox.x * -1, hbox.y, 0),
+            (hbox.x, hbox.y, 0)
+        ]
+        self.screen_hitbox_points = [(transformation * (point + self.position) + translation).xy for point in hitbox_points]
+
+    def draw_hitbox(self, screen: pygame.surface.Surface):
+        pygame.draw.polygon(screen, 'red', self.screen_hitbox_points, 1)
+
+
     def draw(self, screen: pygame.surface.Surface):
-        self.draw_shadow(screen)
-        pygame.draw.circle(
-            screen, 
-            self.color, 
-            (self.screen_position.x, self.screen_position.y-30), 30
-        )
-        pygame.draw.circle(
-            screen, 
-            self.color, 
-            (self.screen_position.x, self.screen_position.y-60), 30
-        )
+        if self.show_hotbox:
+            self.draw_hitbox(screen)
