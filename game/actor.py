@@ -1,7 +1,7 @@
 import pygame
 import random
 import math
-from .math import Vector3, TransformMatrix, Vector2, vector3_max, vector3_abs
+from .math import Vector3, Vector2, vector3_max, vector3_abs, Transformation
 
 class Actor:
     def __init__(self, groups = []) -> None:
@@ -59,11 +59,11 @@ class Actor:
         pass
 
 
-    def transform(self, transformation: TransformMatrix, translation: Vector3) -> None:
-        self.screen_position = (transformation * self.position) + translation
-        self.screen_base_position = (transformation * Vector3(self.position.x, self.position.y, 0)) + translation
+    def transform(self, transformation: Transformation) -> None:
+        self.screen_position = transformation.transform(self.position) #(transformation * self.position) + translation
+        self.screen_base_position = transformation.transform(Vector3(self.position.x, self.position.y, 0))#(transformation * Vector3(self.position.x, self.position.y, 0)) + translation
         if self.show_hotbox:
-            self.transform_hitbox(transformation, translation)
+            self.transform_hitbox(transformation)
 
 
     def draw_shadow(self, screen: pygame.surface.Surface):
@@ -76,7 +76,7 @@ class Actor:
         )
 
 
-    def transform_hitbox(self, transformation: TransformMatrix, translation: Vector3) -> None:
+    def transform_hitbox(self, transformation: Transformation) -> None:
         hbox = self.hitbox + self.hitbox_offset
         hitbox_points = [
             (hbox.x, hbox.y, hbox.z),
@@ -90,7 +90,7 @@ class Actor:
             (hbox.x * -1, hbox.y, 0),
             (hbox.x, hbox.y, 0)
         ]
-        self.screen_hitbox_points = [(transformation * (point + self.position) + translation).xy for point in hitbox_points]
+        self.screen_hitbox_points = [transformation.transform(point + self.position) for point in hitbox_points]
 
     def draw_hitbox(self, screen: pygame.surface.Surface):
         pygame.draw.polygon(screen, 'red', self.screen_hitbox_points, 1)

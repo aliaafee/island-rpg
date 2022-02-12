@@ -6,7 +6,7 @@ Vector3 = pygame.math.Vector3
 Vector2 = pygame.math.Vector2
 
 
-class TransformMatrix:
+class Matrix3x3:
     def __init__(self, matrix) -> None:
         """
             Matrix format = [
@@ -54,3 +54,13 @@ def vector3_max(a: Vector3, b: Vector3) -> Vector3:
         max(a.y, b.y),
         max(a.z, b.z),
     )
+
+
+class Transformation:
+    def __init__(self, transformation: Matrix3x3, translation: Vector3) -> None:
+        self.transformation = transformation
+        self.translation = translation
+
+
+    def transform(self, point: Vector3) -> Vector3:
+        return self.transformation * point + self.translation

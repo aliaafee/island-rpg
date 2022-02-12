@@ -3,7 +3,7 @@ import math
 from .actor import Actor
 from .player import Player
 from .vegetation import Tree
-from .math import TransformMatrix, Vector3
+from .math import Transformation, Matrix3x3, Vector3
 
 
 class Level:
@@ -18,17 +18,25 @@ class Level:
 
     def load_level(self) -> None:
         alpha = (45/180) * math.pi
-        beta = (45/180) * math.pi
-        self.transformation = TransformMatrix([
-            [                 math.sin(alpha),             -1 * math.sin(alpha),                   0],
-            [math.cos(beta) * math.sin(alpha), math.cos(beta) * math.cos(alpha), -1 * math.sin(beta)],
-            [math.sin(beta) * math.sin(alpha), math.sin(beta) * math.cos(alpha),      math.cos(beta)]
-        ])
+        beta = (60/180) * math.pi
 
         self.translation = pygame.Vector3(
             self.display_surface.get_width()/2, 
             self.display_surface.get_height()/2,
             0
+        )
+
+        self.transformation = Transformation(
+            Matrix3x3([
+                [                 math.sin(alpha),             -1 * math.sin(alpha),                   0],
+                [math.cos(beta) * math.sin(alpha), math.cos(beta) * math.cos(alpha), -1 * math.sin(beta)],
+                [math.sin(beta) * math.sin(alpha), math.sin(beta) * math.cos(alpha),      math.cos(beta)]
+            ]),
+            pygame.Vector3(
+                self.display_surface.get_width()/2, 
+                self.display_surface.get_height()/2,
+                0
+            )
         )
 
         self.player = Player([self.visible_actors])
@@ -48,7 +56,7 @@ class Level:
 
     def transform(self) -> None:
         for actor in self.visible_actors:
-            actor.transform(self.transformation, self.translation)
+            actor.transform(self.transformation)#, self.translation)
 
     def draw(self) -> None:
         """Sorted according to distance between point and the line x + y = 0 on the ground plane"""
