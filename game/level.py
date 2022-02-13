@@ -35,8 +35,9 @@ class Level:
         )
 
         #Used for converting screen coordinates to coordinates on the ground plane
-        self.screen_x_axis = Vector3(1, 0, 0).rotate_z_rad(-1 * alpha).normalize() 
-        self.screen_y_axis = Vector3(0, 1, 0).rotate_z_rad(-1 * alpha).normalize()
+        self.screen_x_axis = self.transformation._inverse_transformation * Vector3(1, 0, 0)
+        self.screen_y_axis = self.transformation._inverse_transformation * Vector3(0, 1, 0)
+        self.screen_y_axis.z = 0
         t_x_axis = self.transformation.transform(self.screen_x_axis).x - self.transformation.translation.x
         t_y_axis = self.transformation.transform(self.screen_y_axis).y - self.transformation.translation.y
         self.screen_y_axis = self.screen_y_axis * t_x_axis/t_y_axis
@@ -44,12 +45,13 @@ class Level:
 
         self.player = Player([self.visible_actors])
         self.player.position = Vector3(100, 100, 0)
+        #self.player.show_hotbox = True
 
         self.obstacle = Tree([self.visible_actors, self.obstacles])
-        self.obstacle.position = Vector3(0, 0, 0)
+        self.obstacle.position = Vector3(150, -100, 0)
 
         self.tree = Tree([self.visible_actors, self.obstacles])
-        self.tree.position = Vector3(150, 0, 0)
+        self.tree.position = Vector3(-150, 0, 0)
 
         self.mouse = Mouse([self.visible_actors])
 
@@ -57,7 +59,7 @@ class Level:
     def to_ground_position(self, screen_position: Vector2) -> Vector3:
         screen_position3 = Vector3(screen_position.x, screen_position.y, 0) - self.transformation.translation
         
-        """
+        #"""
         t_orig = self.transformation.transform(Vector3(0,0,0))
         t_x_axis = self.transformation.transform(self.screen_x_axis * 100)
         t_y_axis = self.transformation.transform(self.screen_y_axis* 100)
@@ -65,7 +67,7 @@ class Level:
         pygame.draw.circle(self.display_surface, 'grey', t_orig.xy, 3)
         pygame.draw.circle(self.display_surface, 'blue', t_x_axis.xy, 3)
         pygame.draw.circle(self.display_surface, 'green', t_y_axis.xy, 3)
-        """
+        #"""
 
         return (self.screen_x_axis * screen_position3.x) + (self.screen_y_axis * screen_position3.y)
 
