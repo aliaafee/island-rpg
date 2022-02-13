@@ -17,7 +17,6 @@ class Game:
         self.clock = pygame.time.Clock()
 
         self.level = Level()
-        self.level.load_level()
 
 
     def run(self):
@@ -33,7 +32,7 @@ class Game:
             self.level.transform()
             self.level.draw()
 
-            debug(round(self.clock.get_fps()))
+            #debug(round(self.clock.get_fps()))
 
             pygame.display.update()
             self.clock.tick(self.fps)

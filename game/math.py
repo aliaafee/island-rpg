@@ -1,5 +1,4 @@
 import pygame
-import math
 
 Vector3 = pygame.math.Vector3
 
@@ -17,6 +16,31 @@ class Matrix3x3:
         """
         self.matrix = matrix
         pass
+
+    def inverse(self):
+        """Thanks Alok Aryan on stackoverflow"""
+        det_ = self.matrix[0][0] * (
+                (self.matrix[1][1] * self.matrix[2][2]) - (self.matrix[1][2] * self.matrix[2][1])) - \
+            self.matrix[0][1] * (
+                    (self.matrix[1][0] * self.matrix[2][2]) - (self.matrix[1][2] * self.matrix[2][0])) + \
+            self.matrix[0][2] * (
+                    (self.matrix[1][0] * self.matrix[2][1]) - (self.matrix[1][1] * self.matrix[2][0]))
+        co_fctr_1 = [(self.matrix[1][1] * self.matrix[2][2]) - (self.matrix[1][2] * self.matrix[2][1]),
+                    -((self.matrix[1][0] * self.matrix[2][2]) - (self.matrix[1][2] * self.matrix[2][0])),
+                    (self.matrix[1][0] * self.matrix[2][1]) - (self.matrix[1][1] * self.matrix[2][0])]
+
+        co_fctr_2 = [-((self.matrix[0][1] * self.matrix[2][2]) - (self.matrix[0][2] * self.matrix[2][1])),
+                    (self.matrix[0][0] * self.matrix[2][2]) - (self.matrix[0][2] * self.matrix[2][0]),
+                    -((self.matrix[0][0] * self.matrix[2][1]) - (self.matrix[0][1] * self.matrix[2][0]))]
+
+        co_fctr_3 = [(self.matrix[0][1] * self.matrix[1][2]) - (self.matrix[0][2] * self.matrix[1][1]),
+                    -((self.matrix[0][0] * self.matrix[1][2]) - (self.matrix[0][2] * self.matrix[1][0])),
+                    (self.matrix[0][0] * self.matrix[1][1]) - (self.matrix[0][1] * self.matrix[1][0])]
+
+        return Matrix3x3([[1 / det_ * (co_fctr_1[0]), 1 / det_ * (co_fctr_2[0]), 1 / det_ * (co_fctr_3[0])],
+                    [1 / det_ * (co_fctr_1[1]), 1 / det_ * (co_fctr_2[1]), 1 / det_ * (co_fctr_3[1])],
+                    [1 / det_ * (co_fctr_1[2]), 1 / det_ * (co_fctr_2[2]), 1 / det_ * (co_fctr_3[2])]])
+
 
     def __mul__(self, vec3: Vector3) -> Vector3:
         return Vector3(
@@ -58,9 +82,28 @@ def vector3_max(a: Vector3, b: Vector3) -> Vector3:
 
 class Transformation:
     def __init__(self, transformation: Matrix3x3, translation: Vector3) -> None:
-        self.transformation = transformation
         self.translation = translation
+
+        self._transformation = transformation
+        self._inverse_transformation = transformation.inverse()
+
+    @property
+    def transformation(self):
+        return self._transformation
+
+    @transformation.setter
+    def transformation(self, transformation: Matrix3x3):
+        self._transformation = transformation
+        self._inverse_transformation = transformation.inverse()
 
 
     def transform(self, point: Vector3) -> Vector3:
-        return self.transformation * point + self.translation
+        return self._transformation * point + self.translation
+
+
+    def inverse_transform(self, point: Vector3) -> Vector3:
+        return self._inverse_transformation * (point - self.translation)
+
+
+
+

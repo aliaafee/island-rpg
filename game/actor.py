@@ -90,7 +90,7 @@ class Actor:
             (hbox.x * -1, hbox.y, 0),
             (hbox.x, hbox.y, 0)
         ]
-        self.screen_hitbox_points = [transformation.transform(point + self.position) for point in hitbox_points]
+        self.screen_hitbox_points = [transformation.transform(point + self.position).xy for point in hitbox_points]
 
     def draw_hitbox(self, screen: pygame.surface.Surface):
         pygame.draw.polygon(screen, 'red', self.screen_hitbox_points, 1)

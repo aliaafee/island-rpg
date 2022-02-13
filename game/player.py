@@ -42,7 +42,7 @@ class Player(AnimatedActor):
 
     def input(self, obstacles: list) -> None:
         keys = pygame.key.get_pressed()
-        
+        """
         if keys[pygame.K_UP]:
             self.direction.y = -1
             self.current_direction = "up"
@@ -86,7 +86,7 @@ class Player(AnimatedActor):
         for obstacle in obstacles:
             if self.hitbox_collision(obstacle):
                 self.position = initial_position
-
+        """
 
     def transform(self, transformation: Transformation) -> None:
         super().transform(transformation)
