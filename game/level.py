@@ -108,8 +108,8 @@ class Level:
             actor.transform(self.transformation)#, self.translation)
 
     def draw(self) -> None:
-        """Sorted according to distance between point and the line x + y = 0 on the ground plane"""
-        
+        """Sorted acording to screen z position"""
+
         for actor in sorted(self.visible_actors, 
-                            key = lambda actor: (actor.position.x + actor.position.y) / 1.4142135623730951):
+                            key = lambda actor: actor.screen_position.z):
             actor.draw(self.display_surface)
