@@ -1,5 +1,6 @@
 import pygame
-from .math import Vector2, Vector3, Transformation
+from .math import Vector2, Vector3
+from .camera import Camera
 from .animated_actor import AnimatedActor
 from .resources import load_image, load_image_folder
 
@@ -88,8 +89,8 @@ class Player(AnimatedActor):
                 self.position = initial_position
         """
 
-    def transform(self, transformation: Transformation) -> None:
-        super().transform(transformation)
+    def transform(self, camera: Camera) -> None:
+        super().transform(camera)
 
 
     def draw(self, screen: pygame.surface.Surface):

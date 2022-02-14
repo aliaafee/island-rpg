@@ -80,30 +80,11 @@ def vector3_max(a: Vector3, b: Vector3) -> Vector3:
     )
 
 
-class Transformation:
-    def __init__(self, transformation: Matrix3x3, translation: Vector3) -> None:
-        self.translation = translation
-
-        self._transformation = transformation
-        self._inverse_transformation = transformation.inverse()
-
-    @property
-    def transformation(self):
-        return self._transformation
-
-    @transformation.setter
-    def transformation(self, transformation: Matrix3x3):
-        self._transformation = transformation
-        self._inverse_transformation = transformation.inverse()
-
-
-    def transform(self, point: Vector3) -> Vector3:
-        return self._transformation * point + self.translation
-
-
-    def inverse_transform(self, point: Vector3) -> Vector3:
-        return self._inverse_transformation * (point - self.translation)
-
-
-
-
+def intersect_plane(n: Vector3, p0: Vector3, l0: Vector3, l: Vector3) -> Vector3:
+    """Ray plane intersection. intersection is infront of ray it t is positive"""
+    denom = n.dot(l)
+    if denom:
+        p0l0 = p0 - l0
+        t = p0l0.dot(n) / denom
+        return l0 + (l * t)
+    return None

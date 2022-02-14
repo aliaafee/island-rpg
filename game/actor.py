@@ -1,7 +1,8 @@
 import pygame
 import random
 import math
-from .math import Vector3, Vector2, vector3_max, vector3_abs, Transformation
+from .math import Vector3, Vector2, vector3_max, vector3_abs
+from .camera import Camera
 
 class Actor:
     def __init__(self, groups = []) -> None:
@@ -10,7 +11,7 @@ class Actor:
         self.screen_base_position = Vector3(0, 0, 0)
 
         self.set_hitbox(Vector3(50, 50 , 50))
-        self.show_hotbox = False
+        self.show_hitbox = False
         self.screen_hitbox_points = []
     
         self.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
@@ -40,6 +41,7 @@ class Actor:
         q = point - self.hitbox_position()
         return q.length() - radius
 
+
     def hitbox_position(self):
         return self.position + self.hitbox_offset
 
@@ -59,11 +61,11 @@ class Actor:
         pass
 
 
-    def transform(self, transformation: Transformation) -> None:
-        self.screen_position = transformation.transform(self.position) #(transformation * self.position) + translation
-        self.screen_base_position = transformation.transform(Vector3(self.position.x, self.position.y, 0))#(transformation * Vector3(self.position.x, self.position.y, 0)) + translation
-        if self.show_hotbox:
-            self.transform_hitbox(transformation)
+    def transform(self, camera: Camera) -> None:
+        self.screen_position = camera.transform(self.position)
+        self.screen_base_position = camera.transform(Vector3(self.position.x, self.position.y, 0))
+        if self.show_hitbox:
+            self.transform_hitbox(camera)
 
 
     def draw_shadow(self, screen: pygame.surface.Surface):
@@ -76,7 +78,7 @@ class Actor:
         )
 
 
-    def transform_hitbox(self, transformation: Transformation) -> None:
+    def transform_hitbox(self, camera: Camera) -> None:
         hbox = self.hitbox + self.hitbox_offset
         hitbox_points = [
             (hbox.x, hbox.y, hbox.z),
@@ -90,12 +92,12 @@ class Actor:
             (hbox.x * -1, hbox.y, 0),
             (hbox.x, hbox.y, 0)
         ]
-        self.screen_hitbox_points = [transformation.transform(point + self.position).xy for point in hitbox_points]
+        self.screen_hitbox_points = [camera.transform(point + self.position).xy for point in hitbox_points]
 
     def draw_hitbox(self, screen: pygame.surface.Surface):
         pygame.draw.polygon(screen, 'red', self.screen_hitbox_points, 1)
 
 
     def draw(self, screen: pygame.surface.Surface):
-        if self.show_hotbox:
+        if self.show_hitbox:
             self.draw_hitbox(screen)

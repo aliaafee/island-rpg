@@ -1,5 +1,6 @@
 import pygame
-from .math import Vector3, Vector2, Transformation
+from .math import Vector3, Vector2
+from .camera import Camera
 from .actor import Actor
 
 
@@ -16,8 +17,8 @@ class StaticActor(Actor):
         self.image_rect = image.get_rect()
 
 
-    def transform(self, transformation: Transformation) -> None:
-        super().transform(transformation)
+    def transform(self, camera: Camera) -> None:
+        super().transform(camera)
         self.image_rect.center = self.screen_position.xy
         self.image_rect.bottom = self.screen_position.y
         self.image_rect.center = self.image_offset + self.image_rect.center
