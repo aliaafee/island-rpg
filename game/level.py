@@ -69,7 +69,7 @@ class Level:
         mouse1, mouse2, mouse3 = pygame.mouse.get_pressed()
         if mouse1:
             debug("{}, {}".format(mouse_position, self.mouse.position))
-            self.player.position = self.mouse.position
+            self.player.walk_to(self.mouse.position)
             
 
     def update(self) -> None:
