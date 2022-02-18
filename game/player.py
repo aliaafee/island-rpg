@@ -3,65 +3,7 @@ from .math import Vector2, Vector3
 from .camera import Camera
 from .animated_actor import AnimatedActor
 from .resources import load_image, load_image_folder
-
-class PlayerState:
-    def __init__(self, player) -> None:
-        self.player = player
-
-    def enter(self):
-        pass
-
-    def update(self, obstacles: list):
-        pass
-
-    def exit(self):
-        pass
-
-
-class WalkState(PlayerState):
-    def __init__(self, player) -> None:
-        super().__init__(player)
-        self.end =Vector3(0, 0, 0)
-        self.speed = 3
-        self.step = Vector3(0, 0, 0)
-        self.total_step_count = 0
-        self.step_count = 0
-
-    def enter(self):
-        super().enter()
-        direction = self.end - self.player.position
-        direction.normalize_ip()
-        self.step = direction * self.speed
-        distance = self.player.position.distance_to(self.end)
-        if distance < self.speed:
-            self.total_step_count = 0
-            self.step_count = 0
-            return
-        self.total_step_count = distance / self.speed
-        self.step_count = 0
-        self.player.animation_action = "walking"
-        if direction.x > 0 and direction.y < 0:
-            self.player.animation_direction = "right"
-        elif direction.x > 0 and direction.y > 0:
-            self.player.animation_direction = "down"
-        elif direction.x < 0 and direction.y > 0:
-            self.player.animation_direction = "left"
-        else:
-            self.player.animation_direction = "up"
-
-    def update(self, obstacles: list):
-        super().update(obstacles)
-        if self.step_count < self.total_step_count:
-            self.player.position = self.player.position + self.step
-            self.step_count += 1
-        else:
-            self.player.transition_state(None)
-
-    
-    def exit(self):
-        self.player.animation_action = "idle"
-
-
+from .statemachine import StateMachine
 
 
 class Player(AnimatedActor):
@@ -86,24 +28,61 @@ class Player(AnimatedActor):
             self.add_animation(animation_name, load_image_folder('player', animation_name))
         self.set_current_animation("down_idle")
 
-        self.state_walk_x = PlayerState(self)
+        self.walk_path = []
+        self.walk_path_start = None
+        self.path_generator = None
+        
+        self.statemachine = StateMachine()
+        self.statemachine.set_start("idle")
 
-        self.walk_to_state = WalkState(self)
+        self.statemachine.add_state("idle", self.idle_state)
+        self.statemachine.add_state("walking_path", self.walking_path_state)
 
-        self.state = None
+
+    def get_animation_direction_name(self, direction: Vector3):
+        if direction.x > 0 and direction.y < 0:
+            return "right"
+        elif direction.x > 0 and direction.y > 0:
+            return "down"
+        elif direction.x < 0 and direction.y > 0:
+            return "left"
+        return "up"
 
 
-    def transition_state(self, state: PlayerState):
-        if self.state:
-            self.state.exit()
-        self.state = state
-        if self.state:
-            self.state.enter()
+    def idle_state(self, obstacles):
+        if self.walk_path:
+            self.path_generator = self.generate_path(self.walk_path)
+            return 'walking_path'
+
+        
+        self.animation_action = "idle"
+        return "idle"
+
+
+    def walking_path_state(self, obstacles):
+        try:
+            self.position += next(self.path_generator)
+        except StopIteration:
+            self.position = Vector3(self.walk_path[-1])
+            self.walk_path = []
+            return "idle"
+        return "walking_path"
+
+
+    def generate_path(self, path: list):
+        for node in path:
+            direction = (node - self.position).normalize() * self.speed
+            total_steps = int(self.position.distance_to(node) / self.speed)
+            self.animation_action = "walking"
+            self.animation_direction = self.get_animation_direction_name(direction)
+            for step in range(total_steps):
+                yield direction
 
 
     def walk_to(self, point: Vector3):
-        self.walk_to_state.end = point
-        self.transition_state(self.walk_to_state)
+        if not(self.walk_path):
+            self.walk_path_start = Vector3(self.position)
+        self.walk_path.append(point)
 
 
     def hitbox_sd(self, point: Vector3) -> float:
@@ -114,8 +93,7 @@ class Player(AnimatedActor):
         super().update(obstacles)
         self.input(obstacles)
 
-        if self.state:
-            self.state.update(obstacles)
+        self.statemachine.update(obstacles)
         
         self.set_current_animation("{}_{}".format(self.animation_direction, self.animation_action))
         self.animate()
@@ -171,10 +149,15 @@ class Player(AnimatedActor):
 
     def transform(self, camera: Camera) -> None:
         super().transform(camera)
+        if self.walk_path:
+            self.screen_walk_path = [camera.transform(p) for p in [self.walk_path_start] + self.walk_path]
 
 
     def draw(self, screen: pygame.surface.Surface):
         super().draw(screen)
         super().draw_shadow(screen)
         self.draw_animation(screen)
+
+        if self.walk_path:
+            pygame.draw.lines(screen, 'red',False, [p.xy for p in self.screen_walk_path])
         
