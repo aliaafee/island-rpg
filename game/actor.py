@@ -81,11 +81,11 @@ class Actor:
     def transform_hitbox(self, camera: Camera) -> None:
         hbox = self.hitbox + self.hitbox_offset
         hitbox_points = [
-            (hbox.x, hbox.y, hbox.z),
-            (hbox.x, hbox.y * -1, hbox.z),
-            (hbox.x * -1, hbox.y * -1, hbox.z),
-            (hbox.x * -1, hbox.y, hbox.z),
-            (hbox.x, hbox.y, hbox.z),
+            # (hbox.x, hbox.y, hbox.z),
+            # (hbox.x, hbox.y * -1, hbox.z),
+            # (hbox.x * -1, hbox.y * -1, hbox.z),
+            # (hbox.x * -1, hbox.y, hbox.z),
+            # (hbox.x, hbox.y, hbox.z),
             (hbox.x, hbox.y, 0),
             (hbox.x, hbox.y * -1, 0),
             (hbox.x * -1, hbox.y * -1, 0),

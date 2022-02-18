@@ -25,6 +25,8 @@ class Game:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+                if event.type == pygame.MOUSEBUTTONUP:
+                    self.level.mouse_clicked()
 
             self.screen.fill('white')
 

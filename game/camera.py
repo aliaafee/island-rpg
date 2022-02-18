@@ -26,7 +26,7 @@ class Camera:
 
 
     def _calculate_translation(self):
-        self._translation = self._origin + self._position
+        self._translation = self._origin - (self._transform_matrix * self._position)
 
 
     def _calculate_matrix(self):
@@ -39,6 +39,10 @@ class Camera:
         self._inverse_transform_matrix = self._transform_matrix.inverse()
 
         self._camera_direction = self._inverse_transform_matrix * Vector3(0, 0, 1)
+
+
+    def pan(self, direction: Vector3) -> None:
+        self.position = self.position + self._inverse_transform_matrix * direction
 
 
     def transform(self, point: Vector3) ->Vector3:

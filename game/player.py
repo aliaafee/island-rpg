@@ -40,11 +40,11 @@ class Player(AnimatedActor):
 
 
     def get_animation_direction_name(self, direction: Vector3):
-        if direction.x > 0 and direction.y < 0:
+        if direction.x >= 0 and direction.y < 0:
             return "right"
-        elif direction.x > 0 and direction.y > 0:
+        elif direction.x >= 0 and direction.y >= 0:
             return "down"
-        elif direction.x < 0 and direction.y > 0:
+        elif direction.x < 0 and direction.y >= 0:
             return "left"
         return "up"
 
@@ -71,7 +71,10 @@ class Player(AnimatedActor):
 
     def generate_path(self, path: list):
         for node in path:
-            direction = (node - self.position).normalize() * self.speed
+
+            direction = (node - self.position)
+            if direction.length() != 0:
+                direction = direction.normalize() * self.speed
             total_steps = int(self.position.distance_to(node) / self.speed)
             self.animation_action = "walking"
             self.animation_direction = self.get_animation_direction_name(direction)
@@ -83,6 +86,12 @@ class Player(AnimatedActor):
         if not(self.walk_path):
             self.walk_path_start = Vector3(self.position)
         self.walk_path.append(point)
+
+
+    def walk_on_path(self, path: list):
+        self.statemachine.set_current_state("idle")
+        self.walk_path_start = Vector3(self.position)
+        self.walk_path = path
 
 
     def hitbox_sd(self, point: Vector3) -> float:
@@ -154,10 +163,11 @@ class Player(AnimatedActor):
 
 
     def draw(self, screen: pygame.surface.Surface):
+        if self.walk_path:
+            pygame.draw.lines(screen, 'red',False, [p.xy for p in self.screen_walk_path])
         super().draw(screen)
         super().draw_shadow(screen)
         self.draw_animation(screen)
 
-        if self.walk_path:
-            pygame.draw.lines(screen, 'red',False, [p.xy for p in self.screen_walk_path])
+        
         
