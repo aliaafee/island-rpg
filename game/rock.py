@@ -4,10 +4,7 @@ from .static_actor import StaticActor
 
 
 class Rock(StaticActor):
-    def __init__(self, groups=...) -> None:
-        super().__init__(groups)
+    def __init__(self, **kargs) -> None:
+        super().__init__(**kargs)
         self.set_image(load_image("test", "rock.png"))
         self.image_offset.y = +10
-
-        self.set_hitbox(Vector3(30, 30, 50))
-        self.show_hitbox = True

@@ -2,7 +2,6 @@ import math
 from .math import Vector3, Matrix3x3, intersect_plane
 
 
-
 class Camera:
     def __init__(self, position: Vector3, origin: Vector3, rotation_deg: float, tilt_deg: float) -> None:
         self._origin = origin

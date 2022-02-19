@@ -5,8 +5,8 @@ from .actor import Actor
 
 
 class StaticActor(Actor):
-    def __init__(self, groups=...) -> None:
-        super().__init__(groups)
+    def __init__(self, **kargs) -> None:
+        super().__init__(**kargs)
         self.image = None
         self.image_rect = pygame.rect.Rect(0, 0, 64, 64)
         self.image_offset = Vector2(0, 0)

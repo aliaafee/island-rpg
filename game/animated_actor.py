@@ -5,8 +5,8 @@ from .actor import Actor
 
 
 class AnimatedActor(Actor):
-    def __init__(self, groups=...) -> None:
-        super().__init__(groups)
+    def __init__(self, **kargs) -> None:
+        super().__init__(**kargs)
         self.animations = {}
         self.current_animation = None
         self.current_frame = 0

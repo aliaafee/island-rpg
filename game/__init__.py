@@ -4,7 +4,6 @@ import pygame
 import sys
 from .debug import debug
 from .level import Level
-#from .helpers import debug
 
 
 class Game:

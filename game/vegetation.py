@@ -4,8 +4,9 @@ from .static_actor import StaticActor
 
 
 class Tree(StaticActor):
-    def __init__(self, groups=...) -> None:
-        super().__init__(groups)
+    def __init__(self, **kargs) -> None:
+        super().__init__(**kargs)
+        
         self.set_image(load_image("vegetation", "tree01.png"))
         self.image_offset.y = +25
 

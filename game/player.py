@@ -7,11 +7,8 @@ from .statemachine import StateMachine
 
 
 class Player(AnimatedActor):
-    def __init__(self, groups=...) -> None:
-        super().__init__(groups)
-
-        self.hitbox = Vector3(30, 30, 30)
-        self.hitbox_offset = Vector3(0, 0, 30)
+    def __init__(self, **kargs) -> None:
+        super().__init__(**kargs)
         
         self.direction = Vector3()
         self.speed = 3
@@ -54,7 +51,6 @@ class Player(AnimatedActor):
             self.path_generator = self.generate_path(self.walk_path)
             return 'walking_path'
 
-        
         self.animation_action = "idle"
         return "idle"
 
@@ -71,7 +67,6 @@ class Player(AnimatedActor):
 
     def generate_path(self, path: list):
         for node in path:
-
             direction = (node - self.position)
             if direction.length() != 0:
                 direction = direction.normalize() * self.speed
@@ -94,10 +89,6 @@ class Player(AnimatedActor):
         self.walk_path = path
 
 
-    def hitbox_sd(self, point: Vector3) -> float:
-        return self.sd_sphere(point, 30)
-        
-
     def update(self, obstacles: list) -> None:
         super().update(obstacles)
         self.input(obstacles)
@@ -110,51 +101,7 @@ class Player(AnimatedActor):
 
     def input(self, obstacles: list) -> None:
         keys = pygame.key.get_pressed()
-        """
-        if keys[pygame.K_UP]:
-            self.direction.y = -1
-            self.current_direction = "up"
-        elif keys[pygame.K_DOWN]:
-            self.direction.y = 1
-            self.current_direction = "down"
-        else:
-            self.direction.y = 0
 
-        if keys[pygame.K_LEFT]:
-            self.direction.x = -1
-            self.current_direction = "left"
-        elif keys[pygame.K_RIGHT]:
-            self.direction.x = 1
-            self.current_direction = "right"
-        else:
-            self.direction.x = 0
-
-        if keys[pygame.K_z]:
-            self.direction.z = -1
-        elif keys[pygame.K_a]:
-            self.direction.z = 1
-        else:
-            self.direction.z = 0
-
-        if self.direction.length() > 0:
-            self.direction.normalize_ip()
-            self.current_action = "walking"
-        else:
-            self.current_action = "idle"
-
-        self.direction = self.direction.rotate_z(-45)
-
-        initial_position = self.position
-        
-        self.position = self.position +  (self.direction * self.speed)
-
-        if self.position.z < 0:
-            self.position.z = 0
-
-        for obstacle in obstacles:
-            if self.hitbox_collision(obstacle):
-                self.position = initial_position
-        """
 
     def transform(self, camera: Camera) -> None:
         super().transform(camera)
