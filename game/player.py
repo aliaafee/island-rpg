@@ -11,7 +11,7 @@ class Player(AnimatedActor):
         super().__init__(**kargs)
         
         self.direction = Vector3()
-        self.speed = 3
+        self.speed = 1
         
         self.animation_direction = "down"
         self.animation_action = "idle"

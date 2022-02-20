@@ -9,8 +9,6 @@ class Box(Actor):
     def __init__(self, **kargs) -> None:
         super().__init__(**kargs)
 
-        self.size = Vector3(60, 60, 60)
-
     
     def transform(self, camera: Camera) -> None:
         super().transform(camera)

@@ -6,7 +6,7 @@ from .camera import Camera
 
 
 class Actor:
-    def __init__(self, position = Vector3(0, 0, 0), size = Vector3(60, 60, 60), groups = []) -> None:
+    def __init__(self, position = Vector3(0, 0, 0), size = Vector3(1, 1, 1), groups = []) -> None:
         self.position = position
         self.size = size
         

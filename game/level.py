@@ -24,7 +24,7 @@ test_map = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
-test_grid_size = 60
+test_grid_size = 10
 
 
 class Level:
@@ -38,29 +38,31 @@ class Level:
 
     def load_level(self) -> None:
         self.camera = Camera(
-            position=Vector3(300, 300, 0),
+            position=Vector3(0, 0, 0),
             origin=Vector3(
                 self.display_surface.get_width()/2, 
                 self.display_surface.get_height()/2,
                 0
             ),
-            rotation_deg=45,
-            tilt_deg=60
+            screen_tile_size=(64, 32),
+            world_grid_size=test_grid_size
         )
 
         for y, row in enumerate(test_map):
             for x, cell in enumerate(row):
                 if cell == 0:
-                    rock = Box(groups=[self.visible_actors, self.obstacles])
-                    rock.size = Vector3(60, 60, 60)
+                    rock = Box(
+                        groups=[self.visible_actors, self.obstacles],
+                        size=Vector3(test_grid_size, test_grid_size, test_grid_size)
+                    )
                     rock.set_topleft_position(Vector3(x * test_grid_size , y * test_grid_size , 0))
 
         self.player = Player(groups=[self.visible_actors])
-        self.player.position = Vector3(120, 60, 0)
+        self.player.position = Vector3(test_grid_size * 2, test_grid_size, 0)
 
         self.mouse = Mouse(groups=[self.visible_actors])
 
-        self.pathfinder = Pathfinder((600, 600), (10,10))
+        self.pathfinder = Pathfinder((test_grid_size * 10, test_grid_size * 10), (10,10))
         self.pathfinder.add_obstacles(
             [(o.position, o.size) for o in self.obstacles]
         )
