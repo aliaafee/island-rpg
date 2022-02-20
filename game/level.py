@@ -8,11 +8,12 @@ from .math import Vector3
 from .camera import Camera
 from .debug import debug
 from .pathfinder import Pathfinder
+from .box import Box
 
 
 test_map = [
+    [0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 1, 1, 1, 0, 0, 1, 1, 1, 1],
     [1, 1, 1, 1, 0, 1, 1, 1, 1, 1],
@@ -37,7 +38,7 @@ class Level:
 
     def load_level(self) -> None:
         self.camera = Camera(
-            position=Vector3(6000, 6000, 0),
+            position=Vector3(300, 300, 0),
             origin=Vector3(
                 self.display_surface.get_width()/2, 
                 self.display_surface.get_height()/2,
@@ -50,15 +51,16 @@ class Level:
         for y, row in enumerate(test_map):
             for x, cell in enumerate(row):
                 if cell == 0:
-                    rock = Rock(groups=[self.visible_actors, self.obstacles])
-                    rock.position = Vector3(x * test_grid_size + 6000, y * test_grid_size + 6000, 0)
+                    rock = Box(groups=[self.visible_actors, self.obstacles])
+                    rock.size = Vector3(60, 60, 60)
+                    rock.set_topleft_position(Vector3(x * test_grid_size , y * test_grid_size , 0))
 
         self.player = Player(groups=[self.visible_actors])
-        self.player.position = Vector3(6000, 6000, 0)
+        self.player.position = Vector3(120, 60, 0)
 
         self.mouse = Mouse(groups=[self.visible_actors])
 
-        self.pathfinder = Pathfinder((12000, 12000), (200,200))
+        self.pathfinder = Pathfinder((600, 600), (10,10))
         self.pathfinder.add_obstacles(
             [(o.position, o.size) for o in self.obstacles]
         )

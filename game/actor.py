@@ -17,6 +17,10 @@ class Actor:
             group.append(self)
 
 
+    def set_topleft_position(self, position):
+        self.position = position + Vector3(self.size.x, self.size.y, 0)/2
+
+
     def update(self, obstacles: list) -> None:
         pass
 
@@ -37,4 +41,5 @@ class Actor:
 
 
     def draw(self, screen: pygame.surface.Surface):
-        pass
+        if self.position.z != 0:
+            pygame.draw.line(screen, 'blue', self.screen_position.xy, self.screen_base_position.xy)

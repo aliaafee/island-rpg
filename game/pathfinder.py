@@ -26,9 +26,10 @@ class Pathfinder:
 
 
     def _add_obstacle(self, position: Vector3, size: Vector3):
+        topleft = position - size/2.0
         cell = (
-            math.floor(position.x / self.cell_size[0]),
-            math.floor(position.y / self.cell_size[1])
+            math.floor(topleft.x / self.cell_size[0]),
+            math.floor(topleft.y / self.cell_size[1])
         )
 
         cell_size = (
@@ -70,6 +71,7 @@ class Pathfinder:
             math.floor(start.x/self.cell_size[0]),
             math.floor(start.y/self.cell_size[1])
         )
+
         end_cell = (
             math.floor(end.x/self.cell_size[0]),
             math.floor(end.y/self.cell_size[1])
@@ -91,16 +93,16 @@ class Pathfinder:
             return None
 
         print('operations:', runs, 'path length:', len(path))
-        #print(self.grid.grid_str(
-        #    path=path, 
-        #    start=self.grid.node(*start_cell), 
-        #    end=self.grid.node(*end_cell)
-        #))
+        print(self.grid.grid_str(
+            path=path, 
+            start=self.grid.node(*start_cell), 
+            end=self.grid.node(*end_cell)
+        ))
 
         if not path:
             return None
 
         return [
-            Vector3(node[0] * self.cell_size[0], node[1] * self.cell_size[1], 0)
+            Vector3(node[0] * self.cell_size[0] + self.cell_size[0]/2, node[1] * self.cell_size[1] + self.cell_size[1]/2, 0)
             for node in path[1:-2]
         ] + [end]
