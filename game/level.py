@@ -9,6 +9,7 @@ from .camera import Camera
 from .debug import debug
 from .pathfinder import Pathfinder
 from .box import Box
+from .grid import Grid
 
 
 test_map = [
@@ -62,6 +63,8 @@ class Level:
 
         self.mouse = Mouse(groups=[self.visible_actors])
 
+        self.grid = Grid(groups=[self.visible_actors])
+
         self.pathfinder = Pathfinder((test_grid_size * 10, test_grid_size * 10), (10,10))
         self.pathfinder.add_obstacles(
             [(o.position, o.size) for o in self.obstacles]
@@ -93,8 +96,9 @@ class Level:
             self.mouse.position = world_mouse
 
 
-    def mouse_clicked(self):
+    def mouse_clicked(self, event):
         path = self.pathfinder.find_path(self.player.position, self.mouse.position)
+
         if not path:
             print("No path to target")
             return
