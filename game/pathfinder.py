@@ -1,8 +1,4 @@
 import math
-# from pathfinding.core.diagonal_movement import DiagonalMovement
-# from pathfinding.core.grid import Grid
-# from pathfinding.finder.a_star import AStarFinder
-# from pathfinding.finder.finder import ExecutionRunsException
 
 from .math import Vector3
 
@@ -123,7 +119,6 @@ class Pathfinder:
                 while current_node[PARENT]:
                     path.insert(0, current_node[PARENT][POS])
                     current_node = current_node[PARENT]
-                #yield path
                 return path, run
 
             #look at all the adjacent nodes
