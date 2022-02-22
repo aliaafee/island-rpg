@@ -1,0 +1,1 @@
+Art assets use in this project are done by Pixel-boy and AAA and can be found here: https://pixel-boy.itch.io/ninja-adventure-asset-pack They are published under a CC0 license.
