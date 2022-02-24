@@ -1,7 +1,7 @@
 import pygame
 from .actor import Actor
-from .math import Vector3
-from .camera import Camera
+from ..math import Vector3
+from ..camera import Camera
 
 
 class Mouse(Actor):

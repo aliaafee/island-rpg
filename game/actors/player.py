@@ -1,9 +1,9 @@
 import pygame
-from .math import Vector2, Vector3
-from .camera import Camera
+from ..math import Vector2, Vector3
+from ..camera import Camera
 from .animated_actor import AnimatedActor
-from .resources import load_image, load_image_folder
-from .statemachine import StateMachine
+from ..resources import load_image, load_image_folder
+from ..statemachine import StateMachine
 
 
 class Player(AnimatedActor):

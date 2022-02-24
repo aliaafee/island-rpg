@@ -1,5 +1,5 @@
-from .resources import load_image
-from .math import Vector3
+from ..resources import load_image
+from ..math import Vector3
 from .static_actor import StaticActor
 
 

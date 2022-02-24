@@ -1,8 +1,8 @@
 import pygame
 import random
 import math
-from .math import Vector3
-from .camera import Camera
+from ..math import Vector3
+from ..camera import Camera
 
 
 class Actor:

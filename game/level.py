@@ -1,15 +1,15 @@
 import pygame
 
-from .player import Player
-from .vegetation import Tree
-from .rock import Rock
-from .mouse import Mouse
+from .actors.player import Player
+from .actors.vegetation import Tree
+from .actors.rock import Rock
+from .actors.mouse import Mouse
 from .math import Vector3
 from .camera import Camera
 from .debug import debug
 from .pathfinder import Pathfinder
-from .box import Box
-from .grid import Grid
+from .actors.box import Box
+from .actors.grid import Grid
 
 
 test_map = [

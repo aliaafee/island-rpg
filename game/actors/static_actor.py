@@ -1,6 +1,6 @@
 import pygame
-from .math import Vector3, Vector2
-from .camera import Camera
+from ..math import Vector3, Vector2
+from ..camera import Camera
 from .actor import Actor
 
 
