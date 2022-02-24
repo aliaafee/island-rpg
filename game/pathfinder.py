@@ -1,4 +1,5 @@
 import math
+import heapq
 
 from .math import Vector3
 
@@ -116,7 +117,7 @@ class Pathfinder:
                         yield pos[0] + x, pos[1] + y
 
 
-    def astar_findpath(self, start, end, diagonal = False):
+    def astar_findpath_previous_version(self, start, end, diagonal = False):
         """
         grid = [
             [1, 0,...]
@@ -181,6 +182,84 @@ class Pathfinder:
                             #the open list, switch to current child
                             if open_list[child_pos][G] > child_g:
                                 open_list[child_pos] = (child_pos, child_g, child_h, child_g + child_h, current_node)
+        self.debug['closed_list'] = closed_list
+        return [], runs
+
+
+    def astar_findpath(self, start, end, diagonal = False):
+        """
+        grid = [
+            [1, 0,...]
+            .
+            .
+        ]
+        start, end = (x, y) valid position on grid
+
+        A* search, adapted from implementation by Nicholas Swift
+        https://medium.com/@nicholas.w.swift/easy-a-star-pathfinding-7e6689c7f7b2
+        """
+
+        self.debug['closed_list'] = []
+
+        if not(self.is_valid_cell(*start) and self.is_valid_cell(*end)):
+            return None, 0
+        
+        if diagonal:
+            get_adjacent = self.get_adjacent_conditional
+        else:
+            get_adjacent = self.get_adjacent_perp_pos
+
+        open_list = {}
+        closed_list = {}
+        
+        #add start node to open list
+        open_list[start] = (start, 0, 0, 0, None)
+        open_list_heap = [(0, start)]
+        heapq.heapify(open_list_heap)
+
+        runs = 0
+        while open_list_heap:
+            #keep track of number of runs
+            runs += 1
+
+            #let current node be the node with smallest f in the open list
+            f, current_node_pos = heapq.heappop(open_list_heap)
+            
+            #make sure the node has not been closed yet
+            if not current_node_pos in closed_list: #current_node_pos in closed_list.keys():
+                #move current_node from open_list to closed_list
+                current_node = open_list.pop(current_node_pos)
+                closed_list[current_node[POS]] = current_node
+
+                if current_node[POS] == end:
+                    #we have reached the end, back track and make the path
+                    path = [end]
+                    while current_node[PARENT]:
+                        path.insert(0, current_node[PARENT][POS])
+                        current_node = current_node[PARENT]
+                    if len(path) == 1:
+                        return None, runs
+                    self.debug['closed_list'] = closed_list
+                    return path, runs
+
+                #look at all the adjacent nodes
+                for child_pos in get_adjacent(current_node[POS]):
+                    if self.is_valid_cell(*child_pos):
+                        #check to see if the node is closed
+                        if not child_pos in closed_list:
+                            child_g = current_node[G] + 1
+                            child_h = math.sqrt((end[0]-child_pos[0])**2 + (end[1] - child_pos[1])**2)
+                            child_f = child_g + child_h
+                            if not child_pos in open_list:
+                                #add to open_list if not done already
+                                open_list[child_pos] = (child_pos, child_g, child_h, child_f, current_node)
+                                heapq.heappush(open_list_heap, (child_f, child_pos))
+                            else:
+                                #if current child is furthur from origin than the one in
+                                #the open list, switch to current child
+                                if open_list[child_pos][G] > child_g:
+                                    open_list[child_pos] = (child_pos, child_g, child_h, child_f, current_node)
+                                    heapq.heappush(open_list_heap, (child_f, child_pos))
         self.debug['closed_list'] = closed_list
         return [], runs
 
