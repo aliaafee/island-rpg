@@ -466,7 +466,7 @@ while True:
             end = (9, 9)
             
             t_s = timer()
-            for i in range(100000):
+            for i in range(10):
                 path = astar_findpath2(grid, start, end)
             t_e = timer()
             print("astar_findpath2 took {} s".format(t_e - t_s))
@@ -479,7 +479,7 @@ while True:
             )
             
             t_s = timer()
-            for i in range(100000):
+            for i in range(10):
                 path = astar_findpath(grid, start, end)
             t_e = timer()
             print("astar_findpath took {} s".format(t_e - t_s))

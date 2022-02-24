@@ -2,9 +2,12 @@ import math
 
 from .math import Vector3
 
+#a node is a tuple defined as ((x, y), g, h, f, parent)
+POS = 0; G = 1; H = 2; F = 3; PARENT = 4
+
 
 class Pathfinder:
-    def __init__(self, grid_size, grid_cell_count) -> None:
+    def __init__(self, grid_size=(10, 10), grid_cell_count=(10, 10), grid=None) -> None:
         self.grid_size = grid_size
         self.grid_cell_count = grid_cell_count
 
@@ -12,6 +15,12 @@ class Pathfinder:
             grid_size[0]/grid_cell_count[0],
             grid_size[1]/grid_cell_count[1]
         )
+
+        self.debug = {}
+
+        if grid:
+            self.grid = grid
+            return
 
         self.clear()
 
@@ -58,6 +67,12 @@ class Pathfinder:
             return False
         if y > len(self.grid) - 1:
             return False
+        return True
+
+
+    def is_valid_cell(self, x, y):
+        if not(self.in_grid(x, y)):
+            return False
         if self.grid[y][x] == 0:
             return False
         return True
@@ -70,29 +85,57 @@ class Pathfinder:
 
     def get_adjacent_perp_pos(self, pos) -> tuple:
         for offset in [(1,0), (0,1), (-1, 0), (0, -1)]:
-            yield pos[0] + offset[0], pos[1] + offset[1]            
+            yield pos[0] + offset[0], pos[1] + offset[1]
+
+    
+    def get_adjacent_conditional(self, pos) -> tuple:
+        """
+        Does not move diagonally if there is a nearby obstacle
+        """
+        for x in range(-1, 2):
+            for y in range(-1, 2):
+                if x or y:
+                    if abs(x) == abs(y):
+                        adj_x = (
+                            x + (0 - x) + pos[0], 
+                            y + pos[1]
+                        )
+                        adj_y = (
+                            x + pos[0], 
+                            y + (0 - y) + pos[1]
+                        )
+                        adj_v = []
+                        if self.in_grid(*adj_x):
+                            adj_v.append(self.grid[adj_x[1]][adj_x[0]])
+                        if self.in_grid(*adj_y):
+                            adj_v.append(self.grid[adj_y[1]][adj_y[0]])
+                        
+                        if not(0 in adj_v):
+                            yield pos[0] + x, pos[1] + y
+                    else:
+                        yield pos[0] + x, pos[1] + y
 
 
     def astar_findpath(self, start, end, diagonal = False):
         """
-            grid = [
-                [1, 0,...]
-                .
-                .
-            ]
-            start, end = (x, y) valid position on grid
+        grid = [
+            [1, 0,...]
+            .
+            .
+        ]
+        start, end = (x, y) valid position on grid
 
-            A* search, adapted from implementation by Nicholas Swift
-            https://medium.com/@nicholas.w.swift/easy-a-star-pathfinding-7e6689c7f7b2
+        A* search, adapted from implementation by Nicholas Swift
+        https://medium.com/@nicholas.w.swift/easy-a-star-pathfinding-7e6689c7f7b2
         """
+
+        if not(self.is_valid_cell(*start) and self.is_valid_cell(*end)):
+            return None, 0
         
         if diagonal:
-            get_adjacent = self.get_adjacent_diag_pos
+            get_adjacent = self.get_adjacent_conditional
         else:
             get_adjacent = self.get_adjacent_perp_pos
-
-        #a node is a tuple defined as ((x, y), g, h, f, parent)
-        POS = 0; G = 1; H = 2; F = 3; PARENT = 4
 
         open_list = {}
         closed_list = {}
@@ -100,11 +143,10 @@ class Pathfinder:
         #add start node to open list
         open_list[start] = (start, 0, 0, 0, None)
 
-        run = 0
+        runs = 0
         while open_list:
             #keep track of number of runs
-            run += 1
-            #print(run)
+            runs += 1
 
             #let current node be the node with smallest f in the open list
             current_node = sorted(open_list.values(), key=lambda node: node[F])[0]
@@ -119,15 +161,18 @@ class Pathfinder:
                 while current_node[PARENT]:
                     path.insert(0, current_node[PARENT][POS])
                     current_node = current_node[PARENT]
-                return path, run
+                if len(path) == 1:
+                    return None, runs
+                self.debug['closed_list'] = closed_list
+                return path, runs
 
             #look at all the adjacent nodes
             for child_pos in get_adjacent(current_node[POS]):
-                if self.in_grid(*child_pos):
+                if self.is_valid_cell(*child_pos):
                     #check to see if the node is closed
                     if not child_pos in closed_list.keys():
                         child_g = current_node[G] + 1
-                        child_h = (end[0]-child_pos[0])**2 + (end[1] - child_pos[1])**2
+                        child_h = math.sqrt((end[0]-child_pos[0])**2 + (end[1] - child_pos[1])**2)
                         if not child_pos in open_list.keys():
                             #add to open_list if not done already
                             open_list[child_pos] = (child_pos, child_g, child_h, child_g + child_h, current_node)
@@ -136,7 +181,8 @@ class Pathfinder:
                             #the open list, switch to current child
                             if open_list[child_pos][G] > child_g:
                                 open_list[child_pos] = (child_pos, child_g, child_h, child_g + child_h, current_node)
-        return [], run
+        self.debug['closed_list'] = closed_list
+        return [], runs
 
 
     def find_path(self, start: Vector3, end: Vector3, diagonal=True):

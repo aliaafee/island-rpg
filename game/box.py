@@ -29,10 +29,16 @@ class Box(Actor):
 
     def draw(self, screen: pygame.surface.Surface):
         super().draw(screen)
-        pygame.draw.line(screen, 'blue', self.points_t[2], self.points_t[2 + 4], 2)
-        pygame.draw.polygon(screen, 'red', self.points_t[:4])
-        pygame.draw.line(screen, 'blue', self.points_t[0], self.points_t[0 + 4], 2)
-        pygame.draw.line(screen, 'blue', self.points_t[1], self.points_t[1 + 4], 2)
-        pygame.draw.line(screen, 'blue', self.points_t[3], self.points_t[3 + 4],2 )
-        pygame.draw.polygon(screen, 'green', self.points_t[4:], 2)
-        pygame.draw.circle(screen, 'white', self.screen_position.xy, 3)
+
+        # pygame.draw.line(screen, 'blue', self.points_t[2], self.points_t[2 + 4], 2)
+        # pygame.draw.polygon(screen, 'red', self.points_t[:4])
+        # pygame.draw.line(screen, 'blue', self.points_t[0], self.points_t[0 + 4], 2)
+        # pygame.draw.line(screen, 'blue', self.points_t[1], self.points_t[1 + 4], 2)
+        # pygame.draw.line(screen, 'blue', self.points_t[3], self.points_t[3 + 4],2 )
+        # pygame.draw.polygon(screen, 'green', self.points_t[4:], 2)
+        # pygame.draw.circle(screen, 'white', self.screen_position.xy, 3)
+
+        pygame.draw.polygon(screen, (200, 200, 200), self.points_t[4:])
+        pygame.draw.polygon(screen, (150, 150, 150), [self.points_t[0], self.points_t[1], self.points_t[5], self.points_t[4]])
+        pygame.draw.polygon(screen, (100, 100, 100), [self.points_t[0], self.points_t[4], self.points_t[7], self.points_t[3]])
+
