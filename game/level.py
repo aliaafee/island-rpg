@@ -18,12 +18,16 @@ test_map = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 1, 1, 1, 0, 0, 1, 1, 1, 1],
     [1, 1, 1, 1, 0, 1, 1, 1, 1, 1],
-    [1, 1, 0, 0, 0, 1, 1, 1, 1, 1],
+    [1, 1, 0, 0, 0, 1, 1, 5, 1, 1],
     [1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
     [1, 1, 0, 0, 0, 0, 0, 1, 1, 1],
     [1, 1, 1, 1, 1, 1, 0, 1, 1, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
+
+#test_map = [
+#    [ 1 for x in range(100)] for y in range(100)
+#]
 
 test_grid_size = 10
 
@@ -33,6 +37,7 @@ class Level:
         self.display_surface = pygame.display.get_surface()
         self.visible_actors = []
         self.obstacles = []
+        self.interactive = []
 
         self.load_level()
 
@@ -52,8 +57,14 @@ class Level:
         for y, row in enumerate(test_map):
             for x, cell in enumerate(row):
                 if cell == 0:
-                    rock = Box(
+                    box = Box(
                         groups=[self.visible_actors, self.obstacles],
+                        size=Vector3(test_grid_size, test_grid_size, test_grid_size)
+                    )
+                    box.set_topleft_position(Vector3(x * test_grid_size , y * test_grid_size , 0))
+                if cell == 5:
+                    rock = Rock(
+                        groups=[self.visible_actors, self.obstacles, self.interactive],
                         size=Vector3(test_grid_size, test_grid_size, test_grid_size)
                     )
                     rock.set_topleft_position(Vector3(x * test_grid_size , y * test_grid_size , 0))
@@ -63,9 +74,10 @@ class Level:
 
         self.mouse = Mouse(groups=[self.visible_actors])
 
-        self.grid = Grid(groups=[self.visible_actors])
+        grid_size = (len(test_map[0]), len(test_map))
+        self.grid = Grid(groups=[self.visible_actors], size=grid_size)
 
-        self.pathfinder = Pathfinder((test_grid_size * 10, test_grid_size * 10), (10,10))
+        self.pathfinder = Pathfinder((test_grid_size * grid_size[0], test_grid_size * grid_size[1]), grid_size)
         self.pathfinder.add_obstacles(
             [(o.position, o.size) for o in self.obstacles]
         )
@@ -97,6 +109,11 @@ class Level:
 
 
     def mouse_clicked(self, event):
+        for actor in self.interactive:
+            if self.mouse.position.distance_to(actor.position) < 10:
+                self.player.interact_with(actor)
+                return
+
         path = self.pathfinder.find_path(self.player.position, self.mouse.position)
 
         if not path:
@@ -108,7 +125,7 @@ class Level:
     def update(self) -> None:
         self.input()
         for actor in self.visible_actors:
-            actor.update(self.obstacles)
+            actor.update(self)
 
 
     def transform(self) -> None:

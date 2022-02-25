@@ -10,7 +10,11 @@ POS = 0; G = 1; H = 2; F = 3; PARENT = 4
 
 
 class Pathfinder:
-    def __init__(self, grid_size=(10, 10), grid_cell_count=(10, 10), grid=None) -> None:
+    def __init__(self, grid_size=(10, 10), grid_cell_count=(10, 10), max_runs=0, grid=None) -> None:
+        """
+        grid_size = size of the pathfinder are in world space
+        """
+
         self.grid_size = grid_size
         self.grid_cell_count = grid_cell_count
 
@@ -23,15 +27,20 @@ class Pathfinder:
 
         if grid:
             self.grid = grid
-            self.grid_size = (
+            self.grid_cell_count = (
                 len(self.grid[0]),
                 len(self.grid)
             )
         else:
             self.clear()
         
-        self.open_list_t = [None] * self.grid_size[0] * self.grid_size[1]
-        self.closed_list_t = [False] * self.grid_size[0] * self.grid_size[1]
+        self.open_list_t = [None] * self.grid_cell_count[0] * self.grid_cell_count[1]
+        self.closed_list_t = [False] * self.grid_cell_count[0] * self.grid_cell_count[1]
+
+        if max_runs:
+            self.max_runs = max_runs
+        else:
+            self.max_runs = self.grid_cell_count[0] * self.grid_cell_count[1]
 
 
     def _add_obstacle(self, position: Vector3, size: Vector3):
@@ -219,9 +228,12 @@ class Pathfinder:
 
         open_list = list(self.open_list_t)
         closed_list = list(self.closed_list_t)
+
+        print(len(open_list))
+        print(self.grid_cell_count[0] * start[1] + start[0])
         
         #add start node to open list
-        open_list[self.grid_size[1] * start[1] + start[0]] = (start, 0, 0, 0, None)
+        open_list[self.grid_cell_count[0] * start[1] + start[0]] = (start, 0, 0, 0, None)
         open_list_heap = [(0, start)]
         heapq.heapify(open_list_heap)
 
@@ -232,7 +244,7 @@ class Pathfinder:
 
             #let current node be the node with smallest f in the open list
             f, current_node_pos = heapq.heappop(open_list_heap)
-            current_node_i = self.grid_size[1] * current_node_pos[1] + current_node_pos[0] #grid_i(*current_node_pos)
+            current_node_i = self.grid_cell_count[0] * current_node_pos[1] + current_node_pos[0] #grid_i(*current_node_pos)
             
             #make sure the node has not been closed yet
             if not closed_list[current_node_i]: #current_node_pos in closed_list:
@@ -256,7 +268,7 @@ class Pathfinder:
                 for child_pos in get_adjacent(current_node[POS]):
                     if self.is_valid_cell(*child_pos):
                         #check to see if the node is closed
-                        child_i = self.grid_size[1] * child_pos[1] + child_pos[0] #grid_i(*child_pos)
+                        child_i = self.grid_cell_count[0] * child_pos[1] + child_pos[0] #grid_i(*child_pos)
                         if not closed_list[child_i]: #child_pos in closed_list:
                             child_g = current_node[G] + 1
                             child_h = (end[0]-child_pos[0])**2 + (end[1] - child_pos[1])**2

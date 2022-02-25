@@ -4,6 +4,7 @@ class StateMachine:
     def __init__(self) -> None:
         self.handlers = {}
         self.current_state = None
+        self.first_run_current_state = True
         pass
 
 
@@ -17,6 +18,11 @@ class StateMachine:
 
 
     def set_current_state(self, name):
+        next_state = name.upper()
+        
+        if next_state != self.current_state:
+            self.first_run_current_state = True
+
         self.current_state = name.upper()
 
 
@@ -26,4 +32,9 @@ class StateMachine:
 
         handler = self.handlers[self.current_state]
 
-        self.set_current_state(handler(*params))
+        if self.first_run_current_state:
+            self.first_run_current_state = False
+            self.set_current_state(handler(*params, first_run=True))
+            return
+
+        self.set_current_state(handler(*params, first_run=False))

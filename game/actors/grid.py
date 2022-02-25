@@ -6,8 +6,9 @@ from .actor import Actor
 
 
 class Grid(Actor):
-    def __init__(self, **kargs) -> None:
+    def __init__(self, size=(10, 5), **kargs) -> None:
         super().__init__(**kargs)
+        self.size = size
 
     
     def transform(self, camera: Camera) -> None:
@@ -15,13 +16,13 @@ class Grid(Actor):
 
         points = []
 
-        for i in range(101):
-            points.append(Vector3(i* 10, 0, 0))
-            points.append(Vector3(i* 10,  1000, 0))
+        for x in range(self.size[0] + 1):
+            points.append(Vector3(x* 10, 0, 0))
+            points.append(Vector3(x* 10,  self.size[1] * 10, 0))
 
-        for i in range(101):
-            points.append(Vector3(0, i* 10, 0))
-            points.append(Vector3(1000, i* 10, 0))
+        for y in range(self.size[1] + 1):
+            points.append(Vector3(0, y* 10, 0))
+            points.append(Vector3(self.size[0] * 10, y* 10, 0))
 
 
         self.points_t = [camera.transform(p + self.position).xy for p in points]

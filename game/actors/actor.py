@@ -17,12 +17,25 @@ class Actor:
             group.append(self)
 
 
+    @property
+    def base_position(self) -> Vector3:
+        return Vector3(self.position.x, self.position.y, 0)
+
+
     def set_topleft_position(self, position):
         self.position = position + Vector3(self.size.x, self.size.y, 0)/2
 
 
-    def update(self, obstacles: list) -> None:
+    def update(self, level) -> None:
         pass
+
+
+    def interact(self, actor):
+        """
+        Interaction between actors, returns true when
+        interaction is complete
+        """
+        return True
 
 
     def transform(self, camera: Camera) -> None:

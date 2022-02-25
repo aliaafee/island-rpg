@@ -156,16 +156,16 @@ def main():
                 else:
                     print("astar_findpath not found after {} runs, {} s".format(runs1, (time1)))
 
-                # t_s = timer()
-                # path2, runs2 = pfinder.astar_findpath_inplace_list_sorting(start, end, diagonal=True)
-                # t_e = timer()
-                # time2 = t_e - t_s
+                t_s = timer()
+                path2, runs2 = pfinder.astar_findpath_using_lists(start, end, diagonal=True)
+                t_e = timer()
+                time2 = t_e - t_s
 
-                # if path1:
-                #     print("astar_findpath_inplace_list_sorting found in {} runs, {} s".format(runs2, (time2)))
-                #     draw_path(path2)
-                # else:
-                #     print("astar_findpath_inplace_list_sorting not found after {} runs, {} s".format(runs2, (time2)))
+                if path1:
+                    print("astar_findpath_using_lists found in {} runs, {} s".format(runs2, (time2)))
+                    draw_path(path2)
+                else:
+                    print("astar_findpath_using_lists not found after {} runs, {} s".format(runs2, (time2)))
 
                 if 'closed_list' in pfinder.debug.keys():
                     highlight_nodes(pfinder.debug['closed_list'])
