@@ -100,13 +100,13 @@ class Level:
 
         pan = Vector3(0,0,0)
         if keys[pygame.K_UP]:
-            pan.y -= 2
+            pan.y -= 4
         elif keys[pygame.K_DOWN]:
-            pan.y += 2
+            pan.y += 4
         elif keys[pygame.K_LEFT]:
-            pan.x -= 2
+            pan.x -= 4
         elif keys[pygame.K_RIGHT]:
-            pan.x += 2
+            pan.x += 4
         if pan.length_squared != 0:
             self.camera.pan(pan)
 

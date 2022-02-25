@@ -127,7 +127,7 @@ class Player(AnimatedActor):
         if first_run:
             print("Player started interacting with {}.".format(self.interact_target))
             if self.position.distance_to(self.interact_target.base_position) > 20:
-                print("gonna walk")
+                print("Player walking to target")
                 path = level.pathfinder.find_path(
                     self.position,
                     self.interact_target.base_position - ((self.interact_target.base_position - self.base_position).normalize() * 15)
