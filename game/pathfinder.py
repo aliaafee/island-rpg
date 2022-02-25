@@ -1,4 +1,6 @@
+from doctest import DocTestRunner
 import math
+import numpy
 import heapq
 
 from .math import Vector3
@@ -21,9 +23,15 @@ class Pathfinder:
 
         if grid:
             self.grid = grid
-            return
-
-        self.clear()
+            self.grid_size = (
+                len(self.grid[0]),
+                len(self.grid)
+            )
+        else:
+            self.clear()
+        
+        self.open_list_t = [None] * self.grid_size[0] * self.grid_size[1]
+        self.closed_list_t = [False] * self.grid_size[0] * self.grid_size[1]
 
 
     def _add_obstacle(self, position: Vector3, size: Vector3):
@@ -117,7 +125,7 @@ class Pathfinder:
                         yield pos[0] + x, pos[1] + y
 
 
-    def astar_findpath_previous_version(self, start, end, diagonal = False):
+    def astar_findpath_inplace_list_sorting(self, start, end, diagonal = False):
         """
         grid = [
             [1, 0,...]
@@ -173,7 +181,7 @@ class Pathfinder:
                     #check to see if the node is closed
                     if not child_pos in closed_list.keys():
                         child_g = current_node[G] + 1
-                        child_h = math.sqrt((end[0]-child_pos[0])**2 + (end[1] - child_pos[1])**2)
+                        child_h = (end[0]-child_pos[0])**2 + (end[1] - child_pos[1])**2
                         if not child_pos in open_list.keys():
                             #add to open_list if not done already
                             open_list[child_pos] = (child_pos, child_g, child_h, child_g + child_h, current_node)
@@ -183,6 +191,87 @@ class Pathfinder:
                             if open_list[child_pos][G] > child_g:
                                 open_list[child_pos] = (child_pos, child_g, child_h, child_g + child_h, current_node)
         self.debug['closed_list'] = closed_list
+        return [], runs
+
+
+    def astar_findpath_using_lists(self, start, end, diagonal = False):
+        """
+        grid = [
+            [1, 0,...]
+            .
+            .
+        ]
+        start, end = (x, y) valid position on grid
+
+        A* search, adapted from implementation by Nicholas Swift
+        https://medium.com/@nicholas.w.swift/easy-a-star-pathfinding-7e6689c7f7b2
+        """
+
+        #self.debug['closed_list'] = []
+
+        if not(self.is_valid_cell(*start) and self.is_valid_cell(*end)):
+            return None, 0
+        
+        if diagonal:
+            get_adjacent = self.get_adjacent_conditional
+        else:
+            get_adjacent = self.get_adjacent_perp_pos
+
+        open_list = list(self.open_list_t)
+        closed_list = list(self.closed_list_t)
+        
+        #add start node to open list
+        open_list[self.grid_size[1] * start[1] + start[0]] = (start, 0, 0, 0, None)
+        open_list_heap = [(0, start)]
+        heapq.heapify(open_list_heap)
+
+        runs = 0
+        while open_list_heap:
+            #keep track of number of runs
+            runs += 1
+
+            #let current node be the node with smallest f in the open list
+            f, current_node_pos = heapq.heappop(open_list_heap)
+            current_node_i = self.grid_size[1] * current_node_pos[1] + current_node_pos[0] #grid_i(*current_node_pos)
+            
+            #make sure the node has not been closed yet
+            if not closed_list[current_node_i]: #current_node_pos in closed_list:
+                #move current_node from open_list to closed_list
+                current_node = open_list[current_node_i] #open_list.pop(current_node_pos)
+                open_list[current_node_i] = None
+                closed_list[current_node_i] = True
+
+                if current_node[POS] == end:
+                    #we have reached the end, back track and make the path
+                    path = [end]
+                    while current_node[PARENT]:
+                        path.insert(0, current_node[PARENT][POS])
+                        current_node = current_node[PARENT]
+                    if len(path) == 1:
+                        return None, runs
+                    #self.debug['closed_list'] = closed_list
+                    return path, runs
+
+                #look at all the adjacent nodes
+                for child_pos in get_adjacent(current_node[POS]):
+                    if self.is_valid_cell(*child_pos):
+                        #check to see if the node is closed
+                        child_i = self.grid_size[1] * child_pos[1] + child_pos[0] #grid_i(*child_pos)
+                        if not closed_list[child_i]: #child_pos in closed_list:
+                            child_g = current_node[G] + 1
+                            child_h = (end[0]-child_pos[0])**2 + (end[1] - child_pos[1])**2
+                            child_f = child_g + child_h
+                            if not open_list[child_i]: #not child_pos in open_list:
+                                #add to open_list if not done already
+                                open_list[child_i] = (child_pos, child_g, child_h, child_f, current_node)
+                                heapq.heappush(open_list_heap, (child_f, child_pos))
+                            else:
+                                #if current child is furthur from origin than the one in
+                                #the open list, switch to current child
+                                if open_list[child_i][G] > child_g:
+                                    open_list[child_i] = (child_pos, child_g, child_h, child_f, current_node)
+                                    heapq.heappush(open_list_heap, (child_f, child_pos))
+        #self.debug['closed_list'] = closed_list
         return [], runs
 
 
@@ -226,10 +315,10 @@ class Pathfinder:
             f, current_node_pos = heapq.heappop(open_list_heap)
             
             #make sure the node has not been closed yet
-            if not current_node_pos in closed_list: #current_node_pos in closed_list.keys():
-                #move current_node from open_list to closed_list
+            if not current_node_pos in closed_list:
+                #pop current_node from open_list, mark on closed_list
                 current_node = open_list.pop(current_node_pos)
-                closed_list[current_node[POS]] = current_node
+                closed_list[current_node[POS]] = True
 
                 if current_node[POS] == end:
                     #we have reached the end, back track and make the path
@@ -248,7 +337,7 @@ class Pathfinder:
                         #check to see if the node is closed
                         if not child_pos in closed_list:
                             child_g = current_node[G] + 1
-                            child_h = math.sqrt((end[0]-child_pos[0])**2 + (end[1] - child_pos[1])**2)
+                            child_h = (end[0]-child_pos[0])**2 + (end[1] - child_pos[1])**2
                             child_f = child_g + child_h
                             if not child_pos in open_list:
                                 #add to open_list if not done already
@@ -262,6 +351,22 @@ class Pathfinder:
                                     heapq.heappush(open_list_heap, (child_f, child_pos))
         self.debug['closed_list'] = closed_list
         return [], runs
+
+
+    def simplify_path(self, path):
+        if len(path) < 3:
+            return path
+
+        spath = [path[0]]
+        dir = (path[1] - path[0]).normalize()
+        for node in path[1:-1]:
+            ndir = (node - spath[-1]).normalize()
+            dot = dir.dot(ndir)
+            if dir.dot(ndir) != 1:
+                spath.append(node)
+                dir = ndir
+        spath.append(path[-1])
+        return spath
 
 
     def find_path(self, start: Vector3, end: Vector3, diagonal=True):
@@ -281,12 +386,19 @@ class Pathfinder:
 
         path, runs = self.astar_findpath(start_cell, end_cell, diagonal=diagonal)
 
-        print('operations:', runs, 'path length:', len(path))
-
         if not path:
+            print('not found, operations:', runs)
             return None
 
-        return [
+        vpath = [
             Vector3(node[0] * self.cell_size[0] + self.cell_size[0]/2, node[1] * self.cell_size[1] + self.cell_size[1]/2, 0)
             for node in path[1:-1]
-        ] + [end]
+        ]
+
+        return vpath + [end]
+
+        spath = self.simplify_path(vpath) + [end]
+
+        print('operations:', runs, 'path length:', len(path), 'simple path:', len(spath))
+
+        return spath

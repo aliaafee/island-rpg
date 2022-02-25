@@ -146,22 +146,29 @@ def main():
             draw_grid(grid, start, end)
             if start and end:
                 t_s = timer()
-                path, runs = pfinder.astar_findpath(start, end, diagonal=True)
+                path1, runs1 = pfinder.astar_findpath(start, end, diagonal=True)
                 t_e = timer()
-                new_time = t_e - t_s
+                time1 = t_e - t_s
 
-                t_s = timer()
-                path, runs = pfinder.astar_findpath_previous_version(start, end, diagonal=True)
-                t_e = timer()
-                old_time = t_e - t_s
+                if path1:
+                    print("astar_findpath found in {} runs, {} s".format(runs1, (time1)))
+                    draw_path(path1)
+                else:
+                    print("astar_findpath not found after {} runs, {} s".format(runs1, (time1)))
+
+                # t_s = timer()
+                # path2, runs2 = pfinder.astar_findpath_inplace_list_sorting(start, end, diagonal=True)
+                # t_e = timer()
+                # time2 = t_e - t_s
+
+                # if path1:
+                #     print("astar_findpath_inplace_list_sorting found in {} runs, {} s".format(runs2, (time2)))
+                #     draw_path(path2)
+                # else:
+                #     print("astar_findpath_inplace_list_sorting not found after {} runs, {} s".format(runs2, (time2)))
 
                 if 'closed_list' in pfinder.debug.keys():
                     highlight_nodes(pfinder.debug['closed_list'])
-                if path:
-                    print("Path found in {} runs, {} s".format(runs, (new_time, old_time)))
-                    draw_path(path)
-                else:
-                    print("Path not found after {} runs, {} s".format(runs, (new_time, old_time)))
 
         pygame.display.update()
         clock.tick(60)
