@@ -30,10 +30,16 @@ class Actor:
         pass
 
 
-    def interact(self, actor):
+    def start_interaction(self, actor) -> None:
         """
-        Interaction between actors, returns true when
-        interaction is complete
+        Interaction between actors
+        """
+        pass
+
+
+    def interaction_completed(self) -> bool:
+        """
+        Return true when self has finised interacting
         """
         return True
 

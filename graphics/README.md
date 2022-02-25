@@ -1,1 +1,15 @@
-Art assets use in this project are done by Pixel-boy and AAA and can be found here: https://pixel-boy.itch.io/ninja-adventure-asset-pack They are published under a CC0 license.
+Sources of Art Assets 
+
+Character
+https://pixel-boy.itch.io/ninja-adventure-asset-pack
+
+Vegetation Artwork
+Bleed
+https://opengameart.org/content/tree-collection-v26-bleeds-game-art
+http://remusprites.carbonmade.com/
+
+Tiles
+Daniel Stephens (Scribe)
+https://opengameart.org/content/unknown-horizons-tileset
+https://unknown-horizons.org/
+

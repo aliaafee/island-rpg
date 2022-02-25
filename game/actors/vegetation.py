@@ -8,7 +8,18 @@ class Tree(StaticActor):
         super().__init__(**kargs)
         
         self.set_image(load_image("vegetation", "tree01.png"))
-        self.image_offset.y = +25
+        self.image_offset.y = 60
 
-        self.set_hitbox(Vector3(30, 30, 50))
+        self.show_hitbox = True
+
+
+
+
+class Palm(StaticActor):
+    def __init__(self, **kargs) -> None:
+        super().__init__(**kargs)
+        
+        self.set_image(load_image("vegetation", "palm03.png"))
+        self.image_offset.y = 15
+
         self.show_hitbox = True

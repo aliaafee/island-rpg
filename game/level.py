@@ -1,7 +1,7 @@
 import pygame
 
 from .actors.player import Player
-from .actors.vegetation import Tree
+from .actors.vegetation import Tree, Palm
 from .actors.rock import Rock
 from .actors.mouse import Mouse
 from .math import Vector3
@@ -13,16 +13,16 @@ from .actors.grid import Grid
 
 
 test_map = [
-    [0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [0, 1, 1, 1, 1, 1, 1, 1, 1, 5],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 7, 1],
     [1, 1, 1, 1, 0, 0, 1, 1, 1, 1],
     [1, 1, 1, 1, 0, 1, 1, 1, 1, 1],
-    [1, 1, 0, 0, 0, 1, 1, 5, 1, 1],
+    [1, 1, 0, 0, 0, 1, 1, 6, 1, 1],
     [1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
     [1, 1, 0, 0, 0, 0, 0, 1, 1, 1],
     [1, 1, 1, 1, 1, 1, 0, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    [5, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
 #test_map = [
@@ -68,6 +68,18 @@ class Level:
                         size=Vector3(test_grid_size, test_grid_size, test_grid_size)
                     )
                     rock.set_topleft_position(Vector3(x * test_grid_size , y * test_grid_size , 0))
+                if cell == 6:
+                    tree = Palm(
+                        groups=[self.visible_actors, self.obstacles],
+                        size=Vector3(test_grid_size, test_grid_size, test_grid_size)
+                    )
+                    tree.set_topleft_position(Vector3(x * test_grid_size , y * test_grid_size , 0))
+                if cell == 7:
+                    tree = Tree(
+                        groups=[self.visible_actors, self.obstacles],
+                        size=Vector3(test_grid_size, test_grid_size, test_grid_size)
+                    )
+                    tree.set_topleft_position(Vector3(x * test_grid_size , y * test_grid_size , 0))
 
         self.player = Player(groups=[self.visible_actors])
         self.player.position = Vector3(test_grid_size * 2, test_grid_size, 0)
@@ -110,7 +122,7 @@ class Level:
 
     def mouse_clicked(self, event):
         for actor in self.interactive:
-            if self.mouse.position.distance_to(actor.position) < 10:
+            if self.mouse.position.distance_to(actor.base_position) < 10:
                 self.player.interact_with(actor)
                 return
 

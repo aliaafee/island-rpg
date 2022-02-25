@@ -2,6 +2,7 @@ from operator import le
 from re import S
 import re
 from subprocess import IDLE_PRIORITY_CLASS, REALTIME_PRIORITY_CLASS
+from tkinter import N
 from tkinter.messagebox import NO
 import pygame
 
@@ -112,43 +113,48 @@ class Player(AnimatedActor):
 
 
     def walk_on_path(self, path: list):
+        if self.interact_target:
+            return
         self.walk_path = path
+
+
+    def stop_walking(self):
+        self.walk_path = []
+        self.walk_path_start = None
 
 
     def interact_state(self, level, first_run=False):
         if first_run:
             print("Player started interacting with {}.".format(self.interact_target))
-            if self.position.distance_to(self.interact_target.position) > 20:
+            if self.position.distance_to(self.interact_target.base_position) > 20:
                 print("gonna walk")
                 path = level.pathfinder.find_path(
                     self.position,
-                    self.interact_target.base_position + Vector3(self.interact_target.size.x, self.interact_target.size.y, 0)
+                    self.interact_target.base_position - ((self.interact_target.base_position - self.base_position).normalize() * 15)
                 )
                 if path:
                     self.walk_path = path
                     return "walking_path"
                 self.interact_target = None
-                print("cannot find a path to target")
+                print("Player caannot find a path to target")
                 return "idle"
-            self.int_count = 0
+            self.interact_target.start_interaction(self)
+            self.animation_action = "attack"
             self.animation_direction = self.get_direction_name(self.interact_target.position - self.position)
             return "interacting"
 
-        self.int_count += 1
-
-        #print("Player doing a thing count {}".format(self.int_count))
-
-        finished = self.interact_target.interact(self)
-
-        if finished:
+        if self.interact_target.interaction_completed():
+            print("Player interaction completed with {}".format(self.interact_target))
             self.interact_target = None
-            print("interaction complete")
             return 'idle'
 
         return 'interacting'
 
 
     def interact_with(self, target: Actor):
+        if self.interact_target:
+            return
+        self.stop_walking()
         self.interact_target = target
 
 
@@ -161,7 +167,7 @@ class Player(AnimatedActor):
         
         self.set_current_animation("{}_{}".format(self.animation_direction, self.animation_action))
         self.animate()
-        
+
 
     def input(self, obstacles: list) -> None:
         keys = pygame.key.get_pressed()
@@ -181,6 +187,3 @@ class Player(AnimatedActor):
         super().draw(screen)
         super().draw_shadow(screen)
         self.draw_animation(screen)
-
-        
-        

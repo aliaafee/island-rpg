@@ -25,7 +25,8 @@ class StaticActor(Actor):
 
 
     def draw(self, screen: pygame.surface.Surface) -> None:
-        super().draw(screen)
         if self.image:
             screen.blit(self.image, self.image_rect)
+        super().draw(screen)
+        
         
