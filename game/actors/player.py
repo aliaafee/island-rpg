@@ -1,9 +1,3 @@
-from operator import le
-from re import S
-import re
-from subprocess import IDLE_PRIORITY_CLASS, REALTIME_PRIORITY_CLASS
-from tkinter import N
-from tkinter.messagebox import NO
 import pygame
 
 from game.actors.actor import Actor

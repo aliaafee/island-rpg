@@ -1,6 +1,5 @@
 from doctest import DocTestRunner
 import math
-import numpy
 import heapq
 
 from .math import Vector3
@@ -228,9 +227,6 @@ class Pathfinder:
 
         open_list = list(self.open_list_t)
         closed_list = list(self.closed_list_t)
-
-        print(len(open_list))
-        print(self.grid_cell_count[0] * start[1] + start[0])
         
         #add start node to open list
         open_list[self.grid_cell_count[0] * start[1] + start[0]] = (start, 0, 0, 0, None)
