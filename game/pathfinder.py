@@ -9,17 +9,17 @@ POS = 0; G = 1; H = 2; F = 3; PARENT = 4
 
 
 class Pathfinder:
-    def __init__(self, grid_size=(10, 10), grid_cell_count=(10, 10), max_runs=0, grid=None) -> None:
+    def __init__(self, grid_size=(10, 10), cell_count=(10, 10), max_runs=0, grid=None) -> None:
         """
         grid_size = size of the pathfinder are in world space
         """
 
         self.grid_size = grid_size
-        self.grid_cell_count = grid_cell_count
+        self.grid_cell_count = cell_count
 
         self.cell_size = (
-            grid_size[0]/grid_cell_count[0],
-            grid_size[1]/grid_cell_count[1]
+            grid_size[0]/cell_count[0],
+            grid_size[1]/cell_count[1]
         )
 
         self.debug = {}

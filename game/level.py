@@ -1,3 +1,4 @@
+import random
 import pygame
 
 from .actors.player import Player
@@ -12,32 +13,13 @@ from .actors.box import Box
 from .actors.grid import Grid
 
 
-test_map = [
-    [0, 1, 1, 1, 1, 1, 1, 1, 1, 5],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 7, 1],
-    [1, 1, 1, 1, 0, 0, 1, 1, 1, 1],
-    [1, 1, 1, 1, 0, 1, 1, 1, 1, 1],
-    [1, 1, 0, 0, 0, 1, 1, 6, 1, 1],
-    [1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 0, 0, 0, 0, 0, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 0, 1, 1, 1],
-    [5, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-]
-
-#test_map = [
-#    [ 1 for x in range(100)] for y in range(100)
-#]
-
-test_grid_size = 10
-
-
 class Level:
     def __init__(self) -> None:
         self.display_surface = pygame.display.get_surface()
         self.visible_actors = []
         self.obstacles = []
         self.interactive = []
+        self.cell_size = 10
 
         self.load_level()
 
@@ -51,48 +33,92 @@ class Level:
                 0
             ),
             screen_tile_size=(64, 32),
-            world_grid_size=test_grid_size
+            world_grid_size=self.cell_size
         )
 
-        for y, row in enumerate(test_map):
+        map = self.generate_random_map((100, 100), player_cell=(50, 50))
+
+        for y, row in enumerate(map):
             for x, cell in enumerate(row):
                 if cell == 0:
                     box = Box(
                         groups=[self.visible_actors, self.obstacles],
-                        size=Vector3(test_grid_size, test_grid_size, test_grid_size)
+                        size=Vector3(self.cell_size, self.cell_size, self.cell_size)
                     )
-                    box.set_topleft_position(Vector3(x * test_grid_size , y * test_grid_size , 0))
+                    box.set_topleft_position(Vector3(x * self.cell_size , y * self.cell_size , 0))
                 if cell == 5:
                     rock = Rock(
                         groups=[self.visible_actors, self.obstacles, self.interactive],
-                        size=Vector3(test_grid_size, test_grid_size, test_grid_size)
+                        size=Vector3(self.cell_size, self.cell_size, self.cell_size)
                     )
-                    rock.set_topleft_position(Vector3(x * test_grid_size , y * test_grid_size , 0))
+                    rock.set_topleft_position(Vector3(x * self.cell_size , y * self.cell_size , 0))
                 if cell == 6:
                     tree = Palm(
                         groups=[self.visible_actors, self.obstacles],
-                        size=Vector3(test_grid_size, test_grid_size, test_grid_size)
+                        size=Vector3(self.cell_size, self.cell_size, self.cell_size)
                     )
-                    tree.set_topleft_position(Vector3(x * test_grid_size , y * test_grid_size , 0))
+                    tree.set_topleft_position(Vector3(x * self.cell_size , y * self.cell_size , 0))
                 if cell == 7:
                     tree = Tree(
                         groups=[self.visible_actors, self.obstacles],
-                        size=Vector3(test_grid_size, test_grid_size, test_grid_size)
+                        size=Vector3(self.cell_size, self.cell_size, self.cell_size)
                     )
-                    tree.set_topleft_position(Vector3(x * test_grid_size , y * test_grid_size , 0))
+                    tree.set_topleft_position(Vector3(x * self.cell_size , y * self.cell_size , 0))
 
-        self.player = Player(groups=[self.visible_actors])
-        self.player.position = Vector3(test_grid_size * 2, test_grid_size, 0)
+        self.player = Player(
+            groups=[self.visible_actors],
+            size=Vector3(*[self.cell_size]*3)
+        )
+        self.player.set_topleft_position(Vector3(50 * self.cell_size, 50 * self.cell_size, 0))
+        self.camera.position = self.player.position
 
         self.mouse = Mouse(groups=[self.visible_actors])
 
-        grid_size = (len(test_map[0]), len(test_map))
-        self.grid = Grid(groups=[self.visible_actors], size=grid_size)
+        cell_count = (len(map[0]), len(map))
+        self.grid = Grid(groups=[self.visible_actors], cell_count=cell_count, cell_size=self.cell_size)
 
-        self.pathfinder = Pathfinder((test_grid_size * grid_size[0], test_grid_size * grid_size[1]), grid_size)
+        self.pathfinder = Pathfinder((self.cell_size * cell_count[0], self.cell_size * cell_count[1]), cell_count)
         self.pathfinder.add_obstacles(
             [(o.position, o.size) for o in self.obstacles]
         )
+
+
+    def generate_random_map(self, size, player_cell=(0, 0)):
+        width, height = size
+        
+        map = [
+            [1 for x in range(width)] for y in range (height)
+        ]
+
+        for i in range(300):
+            x = random.randint(0, width-1)
+            y = random.randint(0, height-1)
+            if x != player_cell[0] and y != player_cell[1]:
+                map[y][x] = random.choice([6, 7])
+        
+        x = player_cell[0] - 5
+        y = player_cell[1]
+        map[y][x] = 5
+
+        x = player_cell[0] + 5
+        y = player_cell[1]
+        map[y][x] = 5
+
+        
+        return map
+
+        return [
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 5],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 7, 1],
+            [1, 1, 1, 1, 0, 0, 1, 1, 1, 1],
+            [1, 1, 1, 1, 0, 1, 1, 1, 1, 1],
+            [1, 1, 0, 0, 0, 1, 1, 6, 1, 1],
+            [1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 0, 0, 0, 0, 0, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 0, 1, 1, 1],
+            [5, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ]
 
 
     def input(self) -> None:
