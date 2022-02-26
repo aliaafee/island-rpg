@@ -1,11 +1,10 @@
 
 
 class StateMachine:
-    def __init__(self) -> None:
+    def __init__(self, start) -> None:
         self.handlers = {}
-        self.current_state = None
         self.first_run_current_state = True
-        pass
+        self.set_start(start)
 
 
     def add_state(self, name: str, handler):

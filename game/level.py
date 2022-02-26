@@ -70,7 +70,7 @@ class Level:
             size=Vector3(*[self.cell_size]*3)
         )
         self.player.set_topleft_position(Vector3(50 * self.cell_size, 50 * self.cell_size, 0))
-        self.camera.position = self.player.position
+        self.camera.position = Vector3(self.player.position)
 
         self.mouse = Mouse(groups=[self.visible_actors])
 
@@ -124,17 +124,17 @@ class Level:
     def input(self) -> None:
         keys = pygame.key.get_pressed()
 
-        pan = Vector3(0,0,0)
-        if keys[pygame.K_UP]:
-            pan.y -= 4
-        elif keys[pygame.K_DOWN]:
-            pan.y += 4
-        elif keys[pygame.K_LEFT]:
-            pan.x -= 4
-        elif keys[pygame.K_RIGHT]:
-            pan.x += 4
-        if pan.length_squared != 0:
-            self.camera.pan(pan)
+        # pan = Vector3(0,0,0)
+        # if keys[pygame.K_UP]:
+        #     pan.y -= 4
+        # elif keys[pygame.K_DOWN]:
+        #     pan.y += 4
+        # elif keys[pygame.K_LEFT]:
+        #     pan.x -= 4
+        # elif keys[pygame.K_RIGHT]:
+        #     pan.x += 4
+        # if pan.length_squared != 0:
+        #     self.camera.pan(pan)
 
         mouse_position = pygame.mouse.get_pos()
 
@@ -162,6 +162,7 @@ class Level:
             
     def update(self) -> None:
         self.input()
+        self.camera.update(follow_actor=self.player)
         for actor in self.visible_actors:
             actor.update(self)
 

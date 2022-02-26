@@ -29,8 +29,7 @@ class Player(AnimatedActor):
 
         
         
-        self.statemachine = StateMachine()
-        self.statemachine.set_start("idle")
+        self.statemachine = StateMachine("idle")
 
         self.statemachine.add_state("idle", self.idle_state)
         

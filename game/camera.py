@@ -1,5 +1,6 @@
 import math
 from .math import Vector3, Matrix3x3, intersect_plane
+from .statemachine import StateMachine
 
 
 class Camera:
@@ -13,6 +14,12 @@ class Camera:
 
         self._calculate_matrix()
         self._calculate_translation()
+
+        self.follow_speed = 1
+
+        self.statemachine = StateMachine("idle")
+        self.statemachine.add_state("idle", self.idle_state)
+        self.statemachine.add_state("moving", self.moving_state)
 
 
     @property
@@ -67,6 +74,53 @@ class Camera:
             l0=self.inverse_transform(screen_point),
             l=self._camera_direction
         )
+
+
+    def update(self, follow_actor=None):
+        self.statemachine.update(follow_actor)
+
+
+    def idle_state(self, follow_actor, first_run=False):
+        if first_run:
+            print("camera to idle")
+
+        if follow_actor:
+            if self.position.distance_to(follow_actor.position) > 50:
+                return "moving"
+
+        return "idle"
+
+
+    def generate_steps(self, start: Vector3, end: Vector3):
+        direction = (end - start)
+        if direction.length() != 0:
+            direction = direction.normalize()
+        velocity = direction * self.follow_speed
+        total_steps = int(end.distance_to(start) / self.follow_speed)
+        for step in range(total_steps):
+            yield step, velocity
+
+
+    def moving_state(self, follow_actor, first_run=False):
+        if first_run:
+            print("Start Camera Pan")
+            self.end_position = Vector3(follow_actor.position)
+            self.path_generator = self.generate_steps(self.position, follow_actor.position)
+            return "moving"
+
+        try:
+            step, velocity = next(self.path_generator)
+        except StopIteration:
+            return "idle"
+
+        #if self.end_position != follow_actor.position and step > 5:
+        #    return "idle"
+
+        self.position = self.position + velocity
+
+        
+
+        return "moving"
 
 
 

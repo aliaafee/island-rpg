@@ -15,8 +15,7 @@ class Rock(StaticActor):
 
         self.busy = False
 
-        self.statemachine = StateMachine()
-        self.statemachine.set_start("idle")
+        self.statemachine = StateMachine("idle")
         self.statemachine.add_state("idle", self.idle_state)
 
         self.rising = False
