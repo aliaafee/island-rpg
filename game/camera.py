@@ -62,6 +62,11 @@ class Camera:
         """Transform point from World Space to Screen Space"""
         return self._transform_matrix * point + self._translation
 
+
+    def transform_direction(self, point: Vector3) ->Vector3:
+        """Transform point from World Space to Screen Space"""
+        return self._transform_matrix * point
+
     
     def inverse_transform(self, point: Vector3) -> Vector3:
         """Transform point from Screen Space to World Space"""

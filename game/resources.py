@@ -26,3 +26,8 @@ def load_image_folder(*path: str) -> list:
             image = _load_image(os.path.join(foldername, image_filename))
             image_list.append(image)
     return image_list
+
+
+def get_image_filenames(*path: str) -> list:
+    foldername = os.path.join(GFX_ROOT, *path)
+    return os.listdir(foldername)

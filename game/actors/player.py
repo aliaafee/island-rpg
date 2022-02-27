@@ -125,24 +125,25 @@ class Player(AnimatedActor):
     def interact_state(self, level, first_run=False):
         if first_run:
             print("Player started interacting with {}.".format(self.interact_target))
-            if self.position.distance_to(self.interact_target.base_position) > 20:
-                print("Player walking to target")
+            if not self.interact_target.at_interactable_position(self):
+                print("Player is too far")
                 path = level.pathfinder.find_path(
                     self.position,
-                    self.interact_target.base_position - ((self.interact_target.base_position - self.base_position).normalize() * 15)
+                    self.interact_target.get_interact_position(self)
                 )
                 if path:
+                    print("Player walking to target")
                     self.walk_path = path
                     return "walking_path"
                 self.interact_target = None
-                print("Player caannot find a path to target")
+                print("Player cannot find a path to target")
                 return "idle"
             self.interact_target.start_interaction(self)
             self.animation_action = "attack"
             self.animation_direction = self.get_direction_name(self.interact_target.position - self.position)
             return "interacting"
 
-        if self.interact_target.interaction_completed():
+        if self.interact_target.interaction_completed(self):
             print("Player interaction completed with {}".format(self.interact_target))
             self.interact_target = None
             return 'idle'
@@ -181,8 +182,8 @@ class Player(AnimatedActor):
 
 
     def draw(self, screen: pygame.surface.Surface):
-        if self.screen_walk_path:
-            pygame.draw.lines(screen, 'red',False, [p.xy for p in self.screen_walk_path])
+        #if self.screen_walk_path:
+        #    pygame.draw.lines(screen, 'red',False, [p.xy for p in self.screen_walk_path])
         super().draw(screen)
         super().draw_shadow(screen)
         self.draw_animation(screen)

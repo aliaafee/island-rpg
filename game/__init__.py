@@ -4,6 +4,7 @@ import pygame
 import sys
 from .debug import debug
 from .level import Level
+from .level_editor import LevelEditor
 
 
 class Game:
@@ -16,6 +17,7 @@ class Game:
         self.clock = pygame.time.Clock()
 
         self.level = Level()
+        self.level = LevelEditor()
 
 
     def run(self):

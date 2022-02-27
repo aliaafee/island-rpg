@@ -71,7 +71,7 @@ class Rock(StaticActor):
         return "depressing"
 
 
-    def start_interaction(self, actor) -> None:
+    def start_interaction(self, other) -> None:
         if self.is_depressed():
             self.rising = True
             self.busy = True
@@ -80,11 +80,21 @@ class Rock(StaticActor):
             self.busy = True
 
 
-    def interaction_completed(self) -> bool:
+    def interaction_completed(self, other) -> bool:
         """
         Prevents actor from interacting with other actors
         """
         return not self.busy
+
+    
+    def at_interactable_position(self, actor) -> bool:
+        if self.base_position.distance_to(actor.base_position) > 20:
+            return False
+        return True
+
+
+    def get_interact_position(self, actor) -> Vector3:
+        return self.base_position - ((self.base_position - actor.base_position).normalize() * 15)
 
 
     def update(self, level) -> None:

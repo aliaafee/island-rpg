@@ -26,7 +26,7 @@ class Actor:
         """
         Return the final expected position of the actor, if moving,
         otherwise return the current position. Used for centering the 
-        camera on the actor
+        camera on the actor, while moving to a waypoint
         """
         return self.position
 
@@ -39,16 +39,33 @@ class Actor:
         pass
 
 
-    def start_interaction(self, actor) -> None:
+    def at_interactable_position(self, other) -> bool:
+        """
+        Check if other actor is at a position where interation 
+        is possible from
+        """
+        return True
+
+
+    def get_interact_position(self, other) -> Vector3:
+        """
+        Return the optimal position where other actor need to be
+        to interact with this actor
+        """
+        return other.position
+
+
+    def start_interaction(self, other) -> None:
         """
         Interaction between actors
         """
         pass
 
 
-    def interaction_completed(self) -> bool:
+    def interaction_completed(self, other) -> bool:
         """
-        Return true when self has finised interacting
+        Return true when self has finised interacting with other
+        actor
         """
         return True
 

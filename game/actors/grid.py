@@ -6,7 +6,7 @@ from .actor import Actor
 
 
 class Grid(Actor):
-    def __init__(self, cell_count=(10, 5), cell_size=10, **kargs) -> None:
+    def __init__(self, cell_count=(10, 10), cell_size=10, **kargs) -> None:
         super().__init__(**kargs)
         self.cell_count = cell_count
         self.cell_size = cell_size
