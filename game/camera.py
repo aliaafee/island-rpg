@@ -16,6 +16,8 @@ class Camera:
         self._calculate_translation()
 
         self.follow_speed = 1
+        self.follow_radius = 50
+        self.follow_radius2 = self.follow_radius**2
 
         self.statemachine = StateMachine("idle")
         self.statemachine.add_state("idle", self.idle_state)
@@ -85,7 +87,7 @@ class Camera:
             print("camera to idle")
 
         if follow_actor:
-            if self.position.distance_to(follow_actor.position) > 50:
+            if self.position.distance_squared_to(follow_actor.position) > self.follow_radius2:
                 return "moving"
 
         return "idle"
@@ -104,8 +106,8 @@ class Camera:
     def moving_state(self, follow_actor, first_run=False):
         if first_run:
             print("Start Camera Pan")
-            self.end_position = Vector3(follow_actor.position)
-            self.path_generator = self.generate_steps(self.position, follow_actor.position)
+            self.end_position = Vector3(follow_actor.get_final_position())
+            self.path_generator = self.generate_steps(self.position, self.end_position)
             return "moving"
 
         try:
@@ -113,12 +115,8 @@ class Camera:
         except StopIteration:
             return "idle"
 
-        #if self.end_position != follow_actor.position and step > 5:
-        #    return "idle"
 
-        self.position = self.position + velocity
-
-        
+        self.position = self.position + velocity        
 
         return "moving"
 

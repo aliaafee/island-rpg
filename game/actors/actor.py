@@ -22,6 +22,15 @@ class Actor:
         return Vector3(self.position.x, self.position.y, 0)
 
 
+    def get_final_position(self):
+        """
+        Return the final expected position of the actor, if moving,
+        otherwise return the current position. Used for centering the 
+        camera on the actor
+        """
+        return self.position
+
+
     def set_topleft_position(self, position):
         self.position = position + Vector3(self.size.x, self.size.y, 0)/2
 

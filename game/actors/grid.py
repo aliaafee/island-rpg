@@ -32,4 +32,4 @@ class Grid(Actor):
     def draw(self, screen: pygame.surface.Surface):
         super().draw(screen)
         for a, b in zip(*[iter(self.points_t)]*2):
-            pygame.draw.line(screen, 'red', a, b)
+            pygame.draw.line(screen, 'grey', a, b)

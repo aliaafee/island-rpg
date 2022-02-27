@@ -111,6 +111,12 @@ class Player(AnimatedActor):
         self.walk_path = path
 
 
+    def get_final_position(self):
+        if self.walk_path:
+            return self.walk_path[-1]
+        return self.position
+
+
     def stop_walking(self):
         self.walk_path = []
         self.walk_path_start = None
