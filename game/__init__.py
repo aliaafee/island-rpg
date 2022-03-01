@@ -28,6 +28,8 @@ class Game:
                     sys.exit()
                 if event.type == pygame.MOUSEBUTTONUP:
                     self.level.mouse_clicked(event)
+                if event.type == pygame.KEYUP:
+                    self.level.key_pressed(event)
 
             self.screen.fill('white')
 

@@ -17,14 +17,6 @@ class LevelEditor:
         self.cell_size = 10
         self.ui_group = []
 
-        self.tile_names = get_image_filenames("tiles")
-        self.tile_varients = get_image_filenames("tiles", self.tile_names[0])
-        self.tile_angles = get_image_filenames("tiles", self.tile_names[0], self.tile_varients[0])
-
-        self.tile_name_i = 0
-        self.tile_varient_i = 0
-        self.tile_angle_i = 0
-
         self.camera = Camera(
             position=Vector3(0, 0, 0),
             origin=Vector3(
@@ -39,7 +31,34 @@ class LevelEditor:
         self.grid = Grid(groups=[self.ui_group], cell_count=self.cell_count, cell_size=self.cell_size)
         self.ground = Ground(groups=[self.ui_group], cell_count=self.cell_count, cell_size=self.cell_size)
         self.mouse = Mouse(groups=[self.ui_group])
+        
         self.cursor_tile = Tile(groups=[self.ui_group])
+        self.load_tiles()
+
+
+    def load_tiles(self):
+        self.tile_names = get_image_filenames("tiles")
+        self.tile_names.sort()
+        self.tile_varients = get_image_filenames("tiles", self.tile_names[0])
+        self.tile_angles = get_image_filenames("tiles", self.tile_names[0], self.tile_varients[0])
+        self.tile_angles.sort(key=lambda angle: int(angle))
+
+        self.tile_name_i = 0
+        self.tile_varient_i = 0
+        self.tile_angle_i = 0
+
+        self.cursor_tile.load_image(
+            "tiles",
+            self.tile_names[self.tile_name_i],
+            self.tile_varients[self.tile_varient_i],
+            self.tile_angles[self.tile_angle_i],
+            "0.png"
+        )
+        print("{} - {} - {}".format(
+            self.tile_names[self.tile_name_i],
+            self.tile_varients[self.tile_varient_i],
+            self.tile_angles[self.tile_angle_i],
+        ))
 
 
     def toggle_cursor_tile(self, dir=1):
@@ -50,7 +69,9 @@ class LevelEditor:
         self.tile_varients = get_image_filenames("tiles", self.tile_names[self.tile_name_i])
         self.tile_varient_i = 0
         self.tile_angles = get_image_filenames("tiles", self.tile_names[self.tile_name_i], self.tile_varients[self.tile_varient_i])
+        self.tile_angles.sort(key=lambda angle: int(angle))
         self.tile_angle_i = 0
+
         self.cursor_tile.load_image(
             "tiles",
             self.tile_names[self.tile_name_i],
@@ -58,6 +79,11 @@ class LevelEditor:
             self.tile_angles[self.tile_angle_i],
             "0.png"
         )
+        print("{} - {} - {}".format(
+            self.tile_names[self.tile_name_i],
+            self.tile_varients[self.tile_varient_i],
+            self.tile_angles[self.tile_angle_i],
+        ))
 
 
     def toggle_cursor_variants(self, dir=1):
@@ -66,6 +92,7 @@ class LevelEditor:
         if self.tile_varient_i < 0 : self.tile_varient_i = len(self.tile_varients) - 1
         
         self.tile_angles = get_image_filenames("tiles", self.tile_names[self.tile_name_i], self.tile_varients[self.tile_varient_i])
+        self.tile_angles.sort(key=lambda angle: int(angle))
         self.tile_angle_i = 0
 
         self.cursor_tile.load_image(
@@ -75,6 +102,30 @@ class LevelEditor:
             self.tile_angles[self.tile_angle_i],
             "0.png"
         )
+        print("{} - {} - {}".format(
+            self.tile_names[self.tile_name_i],
+            self.tile_varients[self.tile_varient_i],
+            self.tile_angles[self.tile_angle_i],
+        ))
+
+
+    def toggle_cursor_angles(self, dir=1):
+        self.tile_angle_i = self.tile_angle_i + dir
+        if self.tile_angle_i > len(self.tile_angles) - 1 : self.tile_angle_i = 0
+        if self.tile_angle_i < 0 : self.tile_angle_i = len(self.tile_angles) - 1
+
+        self.cursor_tile.load_image(
+            "tiles",
+            self.tile_names[self.tile_name_i],
+            self.tile_varients[self.tile_varient_i],
+            self.tile_angles[self.tile_angle_i],
+            "0.png"
+        )
+        print("{} - {} - {}".format(
+            self.tile_names[self.tile_name_i],
+            self.tile_varients[self.tile_varient_i],
+            self.tile_angles[self.tile_angle_i],
+        ))
 
 
     def input(self):
@@ -107,9 +158,21 @@ class LevelEditor:
             )
         
         if event.button == pygame.BUTTON_WHEELUP:
-            self.toggle_cursor_tile()
+            self.toggle_cursor_angles()
         if event.button == pygame.BUTTON_WHEELDOWN:
+            self.toggle_cursor_angles(-1)
+
+
+    def key_pressed(self, event):
+        if event.key == pygame.K_w:
+            self.toggle_cursor_tile()
+        elif event.key == pygame.K_q:
+            self.toggle_cursor_tile(-1)
+        elif event.key == pygame.K_s:
             self.toggle_cursor_variants()
+        elif event.key == pygame.K_a:
+            self.toggle_cursor_variants(-1)
+        
 
     def update(self) -> None:
         self.input()

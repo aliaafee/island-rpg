@@ -146,6 +146,10 @@ class Level:
             return
         self.player.walk_on_path(path)
 
+
+    def key_pressed(self, event):
+        print(event)
+
             
     def update(self) -> None:
         self.input()
