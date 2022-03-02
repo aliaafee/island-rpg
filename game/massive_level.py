@@ -15,7 +15,7 @@ from .actors.player import Player
 
 
 class Scene:
-    def __init__(self, size=(100, 100), cell_count=(2, 2)) -> None:
+    def __init__(self, size=(1000, 1000), cell_count=(10, 10), pathfinder_cell_count=(60, 60)) -> None:
         self.width, self.height = size
         self.cells_x, self.cells_y = cell_count
         self._grid = {}
@@ -23,7 +23,7 @@ class Scene:
         self._visible_actors = []
         self._pathfinder = Pathfinder(
             grid_size=(self.width / self.cells_x * 3, self.height / self.cells_y * 3),
-            cell_count=(100, 100)
+            cell_count=pathfinder_cell_count
         )
 
     def _get_cell_id(self, point):
@@ -107,6 +107,14 @@ class Scene:
             self.height / self.cells_y * min_cell_id[1],
             0
         )
+
+        max_cell_id = max(self._visible_cells.keys())
+
+        self._visible_end = Vector3(
+            self.width / self.cells_x * (max_cell_id[0] + 1),
+            self.height / self.cells_y * (max_cell_id[1] + 1),
+            0
+        )
         
         self._pathfinder.clear()
         self._pathfinder.add_obstacles([
@@ -117,13 +125,29 @@ class Scene:
         return self._visible_actors
 
 
+    def is_valid_point(self, point: Vector3):
+        if point.x < self._visible_origin.x or point.x > self._visible_end.x:
+            return False
+        if point.y < self._visible_origin.y or point.y > self._visible_end.y:
+            return False
+        return True
+
+
     def find_path(self, start: Vector3, end: Vector3, diagonal=True):
+        if not self.is_valid_point(start):
+            return None
+        if not self.is_valid_point(end):
+            return None
+
         path = self._pathfinder.find_path(
             start - self._visible_origin, 
             end - self._visible_origin, 
-        diagonal)
+            diagonal
+        )
+
         if not path:
             return None
+        
         return [
             node + self._visible_origin
             for node in path
@@ -215,6 +239,7 @@ class MassiveLevel:
         path = self.scene.find_path(self.player.position, self.mouse.position)
         if not path:
             print("Path not found")
+            return
         
         self.player.walk_on_path(path)
 
