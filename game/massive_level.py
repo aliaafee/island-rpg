@@ -7,6 +7,7 @@ from .camera import Camera
 from .actors.grid import Grid
 from .actors.vegetation import Tree, Palm
 from .actors.grid import Grid
+from .actors.box import Box
 from .actors.mouse import Mouse
 from .pathfinder import Pathfinder
 from .actors.player import Player
@@ -21,10 +22,14 @@ class Scene:
         self._grid = {}
         self._visible_cells = {}
         self._visible_actors = []
+        self._visible_origin = None
+        self._visible_end = None
+
         self._pathfinder = Pathfinder(
             grid_size=(self.width / self.cells_x * 3, self.height / self.cells_y * 3),
             cell_count=pathfinder_cell_count
         )
+        print("Path finder cell size = {}".format(self._pathfinder.cell_size))
 
     def _get_cell_id(self, point):
         x, y = point
@@ -70,31 +75,44 @@ class Scene:
     
     def append(self, actor) -> bool:
         location = self._get_cell_id(actor.position.xy)
+
         if not location:
             return False
+
         if not location in self._grid:
             self._grid[location] = []
+
         self._grid[location].append(actor)
+
+        if location in self._visible_cells:
+            print("Updated the visible cells")
+            self._visible_cells[location] = self._grid[location]
 
 
     def get_visible_actors(self, position: Vector3):
         current_cells = list(self._get_cell_ids_including_adjacent(position.xy))
         
-        obsolete_ids = []
+        new_visible_cells = {}
         for cell_id in self._visible_cells:
-            if not cell_id in current_cells:
-                obsolete_ids.append(cell_id)
-        
-        for obsolete_id in obsolete_ids:
-            self._visible_cells.pop(obsolete_id)
+            if cell_id in current_cells:
+                new_visible_cells[cell_id] = self._visible_cells[cell_id]
 
         i = 0
         for cell_id in current_cells:
-            if not cell_id in self._visible_cells:
+            if not cell_id in new_visible_cells:
                 i += 1
-                self._visible_cells[cell_id] = self._get_actors_in_cell(cell_id)
+                new_visible_cells[cell_id] = self._get_actors_in_cell(cell_id)
         if i > 0:
             print("Loaded: {} cells".format(i))
+        self._visible_cells = new_visible_cells
+
+        if not new_visible_cells:
+            self._visible_actors = []
+            self._visible_origin = None
+            self._visible_end = None
+            self._pathfinder.clear()
+            return []
+
         
         self._visible_actors = []
         for actors in self._visible_cells.values():
@@ -126,6 +144,8 @@ class Scene:
 
 
     def is_valid_point(self, point: Vector3):
+        if self._visible_end == None or self._visible_origin == None:
+            return False
         if point.x < self._visible_origin.x or point.x > self._visible_end.x:
             return False
         if point.y < self._visible_origin.y or point.y > self._visible_end.y:
@@ -173,12 +193,12 @@ class MassiveLevel:
             world_grid_size=self.cell_size
         )
 
-        map_size = (2000, 2000)
+        map_size = (2000000, 2000000)
         cell_size = 200
         cell_count=(int(map_size[0]/cell_size), int(map_size[1]/cell_size))
 
         self.grid = Grid(
-            cell_count=cell_count, 
+            cell_count=(10, 10), 
             cell_size=cell_size
         )
         self.mouse = Mouse()
@@ -187,11 +207,11 @@ class MassiveLevel:
 
         self.visible_actors = []
         
-        for i in range(1000):
+        for i in range(10):
             tree = Tree(
                 position=Vector3(
-                    random.randint(50, map_size[0]),
-                    random.randint(50, map_size[1]),
+                    random.randint(50, 200),
+                    random.randint(50, 200),
                     0
                 ),
                 size=Vector3(10, 10, 10)
@@ -217,25 +237,8 @@ class MassiveLevel:
             
         keys = pygame.key.get_pressed()
 
-        pan = Vector3(0,0,0)
-        if keys[pygame.K_UP]:
-            pan.y -= 4
-        elif keys[pygame.K_DOWN]:
-            pan.y += 4
-        elif keys[pygame.K_LEFT]:
-            pan.x -= 4
-        elif keys[pygame.K_RIGHT]:
-            pan.x += 4
-        if pan.length_squared != 0:
-            self.camera.pan(pan)
-
 
     def mouse_clicked(self, event) -> None:
-        #tree = Palm(
-        #    position=Vector3(self.mouse.position),
-        #    size=Vector3(0, 0, 0)
-        #)
-        #self.scene.append(tree)
         path = self.scene.find_path(self.player.position, self.mouse.position)
         if not path:
             print("Path not found")
@@ -246,10 +249,10 @@ class MassiveLevel:
 
     def key_pressed(self, event) -> None:
         if event.key == pygame.K_a:
-            tree = Palm(
+            tree = Box(
                 position=Vector3(self.mouse.position),
                 groups=[self.visible_actors],
-                size=Vector3(0, 0, 0)
+                size=Vector3(10, 10, 10)
             )
             self.scene.append(tree)
 
