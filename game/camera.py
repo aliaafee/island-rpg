@@ -29,7 +29,7 @@ class Camera:
         return self._position
     @position.setter
     def position(self, position: Vector3):
-        self._position = position
+        self._position = Vector3(position)
         self._calculate_translation()
 
 

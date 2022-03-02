@@ -43,22 +43,21 @@ class Pathfinder:
 
 
     def _add_obstacle(self, position: Vector3, size: Vector3):
-        topleft = position - size/2.0
-        cell = (
-            math.floor(topleft.x / self.cell_size[0]),
-            math.floor(topleft.y / self.cell_size[1])
+        topleft = position - size / 2.0
+
+        start_cell = (
+             math.floor(topleft.x / self.cell_size[0]),
+             math.floor(topleft.y / self.cell_size[1])
+        )
+        end_cell = (
+             math.ceil((topleft.x + size.x) / self.cell_size[0]),
+             math.ceil((topleft.y + size.y) / self.cell_size[1])
         )
 
-        cell_size = (
-            math.ceil(size.x / self.cell_size[0]),
-            math.ceil(size.y / self.cell_size[1])
-        )
-
-        for x in range(cell[0], cell[0] + cell_size[0]):
-            for y in range(cell[1], cell[1] + cell_size[1]):
+        for x in range(start_cell[0], end_cell[0]):
+            for y in range(start_cell[1], end_cell[1]):
                 if x < self.grid_cell_count[0] and y < self.grid_cell_count[1]:
                     self.grid[y][x] = 0
-        
         
     def clear(self):
         self.grid = []
