@@ -55,7 +55,9 @@ class Camera:
 
 
     def pan(self, direction: Vector3) -> None:
-        self.position = self.position + self._inverse_transform_matrix * direction
+        screen_position = self.transform(self.position)
+        screen_position += direction
+        self.position = self.project_ground(screen_position)
 
 
     def transform(self, point: Vector3) ->Vector3:
@@ -71,6 +73,11 @@ class Camera:
     def inverse_transform(self, point: Vector3) -> Vector3:
         """Transform point from Screen Space to World Space"""
         return self._inverse_transform_matrix * (point - self._translation)
+
+
+    def inverse_transform_direction(self, point: Vector3) -> Vector3:
+        """Transform point from Screen Space to World Space"""
+        return self._inverse_transform_matrix * point
 
 
     def project_ground(self, screen_point: Vector3, ground_elevation: int = 0) -> Vector3:

@@ -5,6 +5,7 @@ import sys
 from .debug import debug
 from .level import Level
 from .level_editor import LevelEditor
+from .massive_level import MassiveLevel
 
 
 class Game:
@@ -18,6 +19,7 @@ class Game:
 
         self.level = Level()
         self.level = LevelEditor()
+        self.level = MassiveLevel()
 
 
     def run(self):
