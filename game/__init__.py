@@ -24,6 +24,8 @@ class Game:
 
     def run(self):
         while True:
+            self.level.update()
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -33,10 +35,9 @@ class Game:
                 if event.type == pygame.KEYUP:
                     self.level.key_pressed(event)
 
-            self.screen.fill('white')
-
-            self.level.update()
             self.level.transform()
+
+            self.screen.fill('white')
             self.level.draw()
 
             debug(round(self.clock.get_fps()))

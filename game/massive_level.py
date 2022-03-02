@@ -8,6 +8,8 @@ from .actors.grid import Grid
 from .actors.vegetation import Tree, Palm
 from .actors.grid import Grid
 from .actors.mouse import Mouse
+from .pathfinder import Pathfinder
+from .actors.player import Player
 
 
 
@@ -19,6 +21,10 @@ class Scene:
         self._grid = {}
         self._visible_cells = {}
         self._visible_actors = []
+        self._pathfinder = Pathfinder(
+            grid_size=(self.width / self.cells_x * 3, self.height / self.cells_y * 3),
+            cell_count=(100, 100)
+        )
 
     def _get_cell_id(self, point):
         x, y = point
@@ -93,8 +99,36 @@ class Scene:
         self._visible_actors = []
         for actors in self._visible_cells.values():
             self._visible_actors.extend(actors)
+
+        min_cell_id = min(self._visible_cells.keys())
+        
+        self._visible_origin = Vector3(
+            self.width / self.cells_x * min_cell_id[0],
+            self.height / self.cells_y * min_cell_id[1],
+            0
+        )
+        
+        self._pathfinder.clear()
+        self._pathfinder.add_obstacles([
+            (actor.position - self._visible_origin, actor.size)
+            for actor in self._visible_actors
+        ])
         
         return self._visible_actors
+
+
+    def find_path(self, start: Vector3, end: Vector3, diagonal=True):
+        path = self._pathfinder.find_path(
+            start - self._visible_origin, 
+            end - self._visible_origin, 
+        diagonal)
+        if not path:
+            return None
+        return [
+            node + self._visible_origin
+            for node in path
+        ]
+        
         
 
     
@@ -132,13 +166,22 @@ class MassiveLevel:
         for i in range(1000):
             tree = Tree(
                 position=Vector3(
-                    random.randint(0, map_size[0]),
-                    random.randint(0, map_size[1]),
+                    random.randint(50, map_size[0]),
+                    random.randint(50, map_size[1]),
                     0
                 ),
-                size=Vector3(0, 0, 0)
+                size=Vector3(10, 10, 10)
             )
             self.scene.append(tree)
+
+        self.player = Player(
+            position=Vector3(
+                20,
+                20,
+                0
+            ),
+            size=Vector3(10, 10, 10)
+        )
 
 
     def input(self) -> None:
@@ -162,12 +205,18 @@ class MassiveLevel:
         if pan.length_squared != 0:
             self.camera.pan(pan)
 
+
     def mouse_clicked(self, event) -> None:
-        tree = Palm(
-            position=Vector3(self.mouse.position),
-            size=Vector3(0, 0, 0)
-        )
-        self.scene.append(tree)
+        #tree = Palm(
+        #    position=Vector3(self.mouse.position),
+        #    size=Vector3(0, 0, 0)
+        #)
+        #self.scene.append(tree)
+        path = self.scene.find_path(self.player.position, self.mouse.position)
+        if not path:
+            print("Path not found")
+        
+        self.player.walk_on_path(path)
 
 
     def key_pressed(self, event) -> None:
@@ -181,11 +230,15 @@ class MassiveLevel:
 
 
     def update(self) -> None:
+        self.visible_actors = self.scene.get_visible_actors(self.camera.position) + [self.player]
+
         self.input()
 
-        #self.visible_actors = [a for a in self.scene.get_actors(self.mouse.position.xy)]
-        #self.scene.set_visible_position(self.mouse.position.xy)
-        self.visible_actors = self.scene.get_visible_actors(self.camera.position)
+        for actor in self.visible_actors:
+            actor.update(self)
+
+        self.camera.update(follow_actor=self.player)
+        
         
 
     def transform(self) -> None:
@@ -198,9 +251,6 @@ class MassiveLevel:
     def draw(self) -> None:
         self.grid.draw(self.screen)
         self.mouse.draw(self.screen)
-        i = 0
         for actor in sorted(self.visible_actors, 
                             key = lambda actor: actor.screen_position.z):
-            i += 1
             actor.draw(self.screen)
-        print(i)

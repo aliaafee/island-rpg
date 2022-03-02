@@ -182,8 +182,8 @@ class Player(AnimatedActor):
 
 
     def draw(self, screen: pygame.surface.Surface):
-        #if self.screen_walk_path:
-        #    pygame.draw.lines(screen, 'red',False, [p.xy for p in self.screen_walk_path])
+        if self.screen_walk_path:
+            pygame.draw.lines(screen, 'red',False, [p.xy for p in self.screen_walk_path])
         super().draw(screen)
         super().draw_shadow(screen)
         self.draw_animation(screen)
