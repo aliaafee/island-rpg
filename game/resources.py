@@ -1,10 +1,12 @@
 import pygame
 import os
+import json
 
 resources_cache = {}
 
 RES_ROOT = "."
 GFX_ROOT = os.path.join(RES_ROOT, "graphics")
+MAPS_ROOT = os.path.join(RES_ROOT, "maps")
 
 
 def _load_image(path: str) -> pygame.surface.Surface:
@@ -31,3 +33,9 @@ def load_image_folder(*path: str) -> list:
 def get_image_filenames(*path: str) -> list:
     foldername = os.path.join(GFX_ROOT, *path)
     return os.listdir(foldername)
+
+
+def load_map_config(map_name) -> dict:
+    with open(os.path.join(MAPS_ROOT, map_name, 'config.json')) as f:
+        data = json.load(f)
+    return data

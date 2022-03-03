@@ -6,6 +6,7 @@ from .debug import debug
 from .level import Level
 from .level_editor import LevelEditor
 from .massive_level import MassiveLevel
+from .world import World
 
 
 class Game:
@@ -17,9 +18,10 @@ class Game:
         pygame.display.set_caption("OrthoGame")
         self.clock = pygame.time.Clock()
 
-        self.level = Level()
-        self.level = LevelEditor()
-        self.level = MassiveLevel()
+        #self.level = Level()
+        #self.level = LevelEditor()
+        #self.level = MassiveLevel()
+        self.level = World()
 
 
     def run(self):

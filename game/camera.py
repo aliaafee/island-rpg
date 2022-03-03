@@ -4,7 +4,7 @@ from .statemachine import StateMachine
 
 
 class Camera:
-    def __init__(self, position: Vector3, origin: Vector3, screen_tile_size: tuple, world_grid_size: float) -> None:
+    def __init__(self, position: Vector3, origin: Vector3, screen_tile_size: tuple, world_grid_size: float = 10) -> None:
         self._origin = origin
         self._position  = position
         self.screen_tile_size = screen_tile_size

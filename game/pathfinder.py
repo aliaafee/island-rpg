@@ -9,11 +9,12 @@ POS = 0; G = 1; H = 2; F = 3; PARENT = 4
 
 
 class Pathfinder:
-    def __init__(self, grid_size=(10, 10), cell_count=(10, 10), max_runs=0, grid=None) -> None:
+    def __init__(self, position=Vector3(0, 0, 0), grid_size=(10, 10), cell_count=(10, 10), max_runs=0, grid=None) -> None:
         """
         grid_size = size of the pathfinder are in world space
         """
 
+        self.position = position
         self.grid_size = grid_size
         self.grid_cell_count = cell_count
 
@@ -43,7 +44,8 @@ class Pathfinder:
 
 
     def _add_obstacle(self, position: Vector3, size: Vector3):
-        topleft = position - size / 2.0
+        local_position = position - self.position
+        topleft = local_position - size / 2.0
 
         start_cell = (
              math.floor(topleft.x / self.cell_size[0]),
@@ -378,14 +380,17 @@ class Pathfinder:
 
     def find_path(self, start: Vector3, end: Vector3, diagonal=True):
         """start and end as Vector3 in world space"""
+        local_start = start - self.position
+        local_end = end - self.position
+
         start_cell = (
-            math.floor(start.x/self.cell_size[0]),
-            math.floor(start.y/self.cell_size[1])
+            math.floor(local_start.x/self.cell_size[0]),
+            math.floor(local_start.y/self.cell_size[1])
         )
 
         end_cell = (
-            math.floor(end.x/self.cell_size[0]),
-            math.floor(end.y/self.cell_size[1])
+            math.floor(local_end.x/self.cell_size[0]),
+            math.floor(local_end.y/self.cell_size[1])
         )
 
         if not (self.in_grid(*start_cell) and self.in_grid(*end_cell)):
@@ -398,7 +403,7 @@ class Pathfinder:
             return None
 
         vpath = [
-            Vector3(node[0] * self.cell_size[0] + self.cell_size[0]/2, node[1] * self.cell_size[1] + self.cell_size[1]/2, 0)
+            Vector3(node[0] * self.cell_size[0] + self.cell_size[0]/2, node[1] * self.cell_size[1] + self.cell_size[1]/2, 0) + self.position
             for node in path[1:-1]
         ]
 
